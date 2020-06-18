@@ -1,8 +1,8 @@
 # Private documents.
 *.doc
 *.docx
-*.xsl
-*.xslx
+*.xls
+*.xlsx
 *.ppt
 *.pptx
 
