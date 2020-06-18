@@ -1,0 +1,75 @@
+# Private documents.
+*.doc
+*.docx
+*.xsl
+*.xslx
+*.ppt
+*.pptx
+
+# MPLAB X.
+*.d
+*.pre
+*.p1
+*.lst
+*.sym
+*.obj
+*.o
+*.sdb
+*.obj.dmp
+html/
+nbproject/private/
+nbproject/Package-*.bash
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+funclist
+nbproject/Makefile-*
+disassembly/
+*.map
+
+# Eagle backup files.
+*.s#?
+*.b#?
+*.l#?
+*.b$?
+*.s$?
+*.l$?
+
+# Autorouter files.
+*.pro
+*.job
+
+# CAM files.
+*.$$$
+*.cmp
+*.ly2
+*.l15
+*.sol
+*.plc
+*.stc
+*.sts
+*.crc
+*.crs
+*.dri
+*.drl
+*.gpi
+*.pls
+*.ger
+*.xln
+*.drd
+*.drd.*
+*.s#*
+*.b#*
+*.info
+*.eps
+
+# Eagle file locks introduced since 7.x.
+*.lck
+
+# Misc.
+*.*~
+.DS_Store
+
