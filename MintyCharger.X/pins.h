@@ -19,5 +19,9 @@
 #define CHG_LED2   (1 << 4)  // RC4
 #define CHG_LED3   (1 << 5)  // RC5
 
+// Analog channel definitions.
+#define ADC_CH_VSENSE 0b10000
+#define ADC_CH_ISENSE 0b10001
+
 #endif	/* PINS_H */
 
