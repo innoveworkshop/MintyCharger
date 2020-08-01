@@ -8,6 +8,9 @@
 #ifndef CONFIG_H
 #define	CONFIG_H
 
+// Clock frequency.
+#define _XTAL_FREQ 32000000
+
 // CONFIG1
 #pragma config FEXTOSC = OFF    // FEXTOSC External Oscillator mode Selection bits (Oscillator not enabled)
 #pragma config RSTOSC = HFINT32 // Power-up default value for COSC bits (HFINTOSC with 2x PLL (32MHz))
