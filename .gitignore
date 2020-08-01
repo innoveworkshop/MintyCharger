@@ -5,6 +5,7 @@
 *.xlsx
 *.ppt
 *.pptx
+Simulations/
 
 # MPLAB X.
 *.d
