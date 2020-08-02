@@ -15,6 +15,7 @@
 #include "pins.h"
 
 // Some definitions.
+#define PWM_MAX_VALUE  253
 #define ADC_ACQ_DELAY  10  // us
 #define VREF_VOLTAGE   2.048f
 #define ADC_RESOLUTION 1023.0f
@@ -35,16 +36,17 @@ uint16_t targetCurrent  = 0;
  */
 void RegulateBoostOutput(void) {
 	// Control the PWM in order to maintain regulation.
-	if ((adcVoltage < targetVoltage) && (adcCurrent < targetCurrent)) {
-		if (pwmValue < 253) {
+	if (((adcVoltage - adcCurrent) < targetVoltage) &&
+			(adcCurrent < targetCurrent)) {
+		if (pwmValue < PWM_MAX_VALUE) {
 			pwmValue++;
 		} else {
 			pwmValue = 0;
 		}
-	} else if ((adcVoltage > targetVoltage) || (adcCurrent > targetCurrent)) {
-		if (pwmValue > 0) {
+	} else if (((adcVoltage - adcCurrent) > targetVoltage) ||
+			(adcCurrent > targetCurrent)) {
+		if (pwmValue > 0)
 			pwmValue--;
-		}
 	}
 	
 	SetPWMDutyCycle(pwmValue);
