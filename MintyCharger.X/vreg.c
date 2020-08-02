@@ -138,7 +138,15 @@ void SetTargetCurrent(const float current) {
  * 
  * @return Current battery voltage.
  */
-uint16_t GetBatteryVoltage(void) {
-	// TODO: Move to float and remember that the voltage is Vsense - Isense.
-	return adcVoltage;
+float GetBatteryVoltage(void) {
+	return (adcVoltage * (VREF_VOLTAGE / ADC_RESOLUTION)) / VSENSE_VDIV;
+}
+
+/**
+ * Gets the battery current.
+ * 
+ * @return Battery current.
+ */
+float GetBatteryCurrent(void) {
+	return (adcCurrent * (VREF_VOLTAGE / ADC_RESOLUTION)) / ISENSE_GAIN;
 }

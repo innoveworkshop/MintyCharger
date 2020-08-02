@@ -12,7 +12,8 @@
 #include <stdint.h>
 
 // Battery status.
-uint16_t GetBatteryVoltage(void);
+float GetBatteryVoltage(void);
+float GetBatteryCurrent(void);
 
 // Voltage/current regulation.
 void SetTargetVoltage(const float voltage);
