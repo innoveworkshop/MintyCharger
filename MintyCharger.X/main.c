@@ -22,48 +22,34 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "pins.h"
+#include "vreg.h"
 
 // Function prototypes.
-void InitializeIO();
-void InitializeADC();
-void InitializePWM();
-void SetPWMDutyCycle(uint16_t duty_cycle);
+void EnableInterrupts(const uint8_t enable);
+void InitializeIO(void);
+void InitializeADC(void);
+void InitializePWM(void);
 
 /**
  * Application main entry point.
  */
 void main(void) {
 	uint8_t pins = CHG_LED0;
-	uint16_t pwm = 0;
-	uint16_t res = 0;
-	uint16_t vset = (10.0f * (2.0f / 12.0f)) / (2.048f / 1023.0f);
 	
 	// Initialize everything.
+	EnableInterrupts(0);
 	InitializeIO();
 	InitializeADC();
 	InitializePWM();
+	EnableInterrupts(1);
 	
+	// Start the voltage regulation loop.
+	SetTargetVoltage(10.0f);
+	SetTargetCurrent(0.005f);
+	StartNextADCReading();
+	
+	// Main application loop.
 	while (true) {
-		// Read the ADC value.
-		__delay_us(10);     // Acquisition delay.
-		ADCON0bits.GO = 1;  // Start conversion.
-		while (ADCON0bits.GO_nDONE);  // Wait for the conversion to end.
-		res = (ADRESH << 8) | ADRESL;  // Store the result.
-		
-		// Control the PWM.
-		if (res < vset) {
-			if (pwm < 253) {
-				pwm++;
-			} else {
-				pwm = 0;
-			}
-		} else if (res > vset) {
-			if (pwm > 0) {
-				pwm--;
-			}
-		}
-		SetPWMDutyCycle(pwm);
-		
 		if ((PORTA & BTN_SELECT) == 0) {
 			LATC = 0;
 		} else {
@@ -81,9 +67,27 @@ void main(void) {
 }
 
 /**
+ * Interrupt service routine.
+ */
+void __interrupt() ISR(void) {
+	if (PIR1bits.ADIF == 1) {
+		// ADC interrupt.
+		uint16_t adcValue = (ADRESH << 8) | ADRESL;
+		StoreADCValue(adcValue);
+		
+		// Regulate the boost output voltage and current.
+		RegulateBoostOutput();
+		
+		// Clear the interrupt and start the next reading cycle.
+		PIR1bits.ADIF = 0;
+		StartNextADCReading();
+	}
+}
+
+/**
  * Sets up all the I/O pins for the application.
  */
-void InitializeIO() {
+void InitializeIO(void) {
 	// Setup digital inputs.
 	TRISA = 0b111 + BTN_SELECT;
 	TRISC = VSENSE + ISENSE;
@@ -102,7 +106,7 @@ void InitializeIO() {
 /**
  * Sets up the ADCs and their associated pins.
  */
-void InitializeADC() {
+void InitializeADC(void) {
 	// Setup pins for the ADC.
 	ANSELC = VSENSE + ISENSE;
 	
@@ -118,12 +122,13 @@ void InitializeADC() {
 	ADCON1bits.ADPREF = 0b11;        // Positive reference is connected to the FVR.
 	ADCON0bits.CHS = ADC_CH_VSENSE;  // Set the VSENSE pin as the default channel.
 	ADCON0bits.ADON = 1;             // Turn the ADC module ON.
+	PIE1bits.ADIE = 1;               // Enable the ADC interrupt.
 }
 
 /**
  * Sets up the PWM module and assigns the output pin.
  */
-void InitializePWM() {
+void InitializePWM(void) {
 	// Unlock the PPS and set the PWM output pin.
 	PPSLOCK = 0x55;
 	PPSLOCK = 0xAA;
@@ -154,11 +159,13 @@ void InitializePWM() {
 }
 
 /**
- * Sets the PWM duty cycle.
+ * Enable/disables global interrupts.
+ * @remark You should set the interrupts of individual peripherals yourself.
+ *         This function will only enable/disable them globally.
  * 
- * @param duty_cycle 10-bit value that represents the duty cycle.
+ * @param enable Should we enable them?
  */
-void SetPWMDutyCycle(uint16_t duty_cycle) {
-	PWM5DCL = (uint8_t)(duty_cycle << 6);
-	PWM5DCH = (duty_cycle & 0b1111111100);
+void EnableInterrupts(const uint8_t enable) {
+	INTCONbits.GIE = enable;
+	INTCONbits.PEIE = enable;
 }

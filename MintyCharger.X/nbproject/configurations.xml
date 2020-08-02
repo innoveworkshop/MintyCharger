@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>config.h</itemPath>
       <itemPath>pins.h</itemPath>
+      <itemPath>vreg.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -15,6 +16,7 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>main.c</itemPath>
+      <itemPath>vreg.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
