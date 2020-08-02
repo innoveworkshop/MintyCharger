@@ -35,13 +35,13 @@ uint16_t targetCurrent  = 0;
  */
 void RegulateBoostOutput(void) {
 	// Control the PWM in order to maintain regulation.
-	if (adcVoltage < targetVoltage) {
+	if ((adcVoltage < targetVoltage) && (adcCurrent < targetCurrent)) {
 		if (pwmValue < 253) {
 			pwmValue++;
 		} else {
 			pwmValue = 0;
 		}
-	} else if (adcVoltage > targetVoltage) {
+	} else if ((adcVoltage > targetVoltage) || (adcCurrent > targetCurrent)) {
 		if (pwmValue > 0) {
 			pwmValue--;
 		}
