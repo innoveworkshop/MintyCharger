@@ -16,6 +16,8 @@ float GetBatteryVoltage(void);
 float GetBatteryCurrent(void);
 
 // Voltage/current regulation.
+void EnableRegulator(void);
+void DisableRegulator(void);
 void SetTargetVoltage(const float voltage);
 void SetTargetCurrent(const float current);
 void RegulateBoostOutput(void);

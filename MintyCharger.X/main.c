@@ -45,7 +45,8 @@ void main(void) {
 	InitializeSerial();
 	EnableInterrupts(1);
 	
-	// Start the voltage regulation loop.
+	// Start the voltage regulation ADC loop.
+	DisableRegulator();
 	SetTargetVoltage(10.0f);
 	SetTargetCurrent(0.05f);
 	StartNextADCReading();
@@ -64,8 +65,6 @@ void main(void) {
 			pins = CHG_LED0;
 		}
 	}
-
-	return;
 }
 
 /**

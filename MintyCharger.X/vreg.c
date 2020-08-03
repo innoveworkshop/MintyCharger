@@ -24,6 +24,7 @@
 #define ISENSE_GAIN        11
 
 // Private variables.
+bool     enabled        = false;
 uint16_t pwmValue       = 0;
 uint16_t adcVoltage     = 0;
 uint16_t adcCurrent     = 0;
@@ -33,10 +34,34 @@ uint16_t targetCurrent  = 0;
 uint16_t pwmCycleDelay  = 0;
 
 /**
+ * Enables the voltage regulator.
+ */
+void EnableRegulator(void) {
+	pwmValue = 0;
+	pwmCycleDelay = 0;
+
+	enabled = true;
+}
+
+/**
+ * Disables the voltage regulator.
+ */
+void DisableRegulator(void) {
+	pwmValue = 0;
+	pwmCycleDelay = 0;
+	SetPWMDutyCycle(pwmValue);
+
+	enabled = false;
+}
+
+/**
  * Regulates the voltage output of the boost converter to make sure it respects
  * its limits.
  */
 void RegulateBoostOutput(void) {
+	if (!enabled)
+		return;
+
 	// Control the PWM in order to maintain regulation.
 	if ((GetBatteryVoltageValue() < targetVoltage) &&
 			(adcCurrent < targetCurrent)) {
