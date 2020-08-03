@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "pins.h"
 #include "vreg.h"
+#include "serial.h"
 
 // Function prototypes.
 void EnableInterrupts(const uint8_t enable);
@@ -41,11 +42,13 @@ void main(void) {
 	InitializeIO();
 	InitializeADC();
 	InitializePWM();
+	InitializeSerial();
 	EnableInterrupts(1);
+	println("MintyCharger Initialized");
 	
 	// Start the voltage regulation loop.
-	SetTargetVoltage(10.0f);
-	SetTargetCurrent(0.005f);
+	SetTargetVoltage(9.9f);
+	SetTargetCurrent(0.05f);
 	StartNextADCReading();
 	
 	// Main application loop.
@@ -89,7 +92,7 @@ void __interrupt() ISR(void) {
  */
 void InitializeIO(void) {
 	// Setup digital inputs.
-	TRISA = 0b111 + BTN_SELECT;
+	TRISA = BTN_SELECT;
 	TRISC = VSENSE + ISENSE;
 	
 	// Setup pull-ups.
@@ -133,7 +136,6 @@ void InitializePWM(void) {
 	PPSLOCK = 0x55;
 	PPSLOCK = 0xAA;
 	PPSLOCKbits.PPSLOCKED = 0;    // Unlock the PPS.
-	//RA5PPSbits.RA5PPS = 0b01100;  // Set CCP1 output to RA5.
 	RA5PPSbits.RA5PPS = 0b10;   // Set PWM5 output to RA5.
 	PPSLOCK = 0x55;
 	PPSLOCK = 0xAA;
