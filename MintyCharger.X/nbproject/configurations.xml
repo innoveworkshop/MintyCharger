@@ -8,6 +8,7 @@
       <itemPath>src/pins.h</itemPath>
       <itemPath>src/serial.h</itemPath>
       <itemPath>src/vreg.h</itemPath>
+      <itemPath>src/interface.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -19,6 +20,7 @@
       <itemPath>src/main.c</itemPath>
       <itemPath>src/serial.c</itemPath>
       <itemPath>src/vreg.c</itemPath>
+      <itemPath>src/interface.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
