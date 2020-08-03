@@ -28,5 +28,12 @@ void StartNextADCReading(void);
 // PWM stuff.
 void SetPWMDutyCycle(const uint16_t pwmDutyCycle);
 
+// ADC values.
+extern inline uint16_t __attribute__((always_inline)) GetBatteryVoltageValue(void);
+uint16_t GetTargetVoltageValue(void);
+uint16_t GetTargetCurrentValue(void);
+uint16_t GetMeasuredVoltageValue(void);
+uint16_t GetMeasuredCurrentValue(void);
+
 #endif	/* VREG_H */
 

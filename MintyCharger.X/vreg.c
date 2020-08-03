@@ -15,20 +15,22 @@
 #include "pins.h"
 
 // Some definitions.
-#define PWM_MAX_VALUE  253
-#define ADC_ACQ_DELAY  10  // us
-#define VREF_VOLTAGE   2.048f
-#define ADC_RESOLUTION 1023.0f
-#define VSENSE_VDIV    2.0f / 12.0f
-#define ISENSE_GAIN    11
+#define PWM_MAX_VALUE      1022
+#define PWM_RAMP_UP_CYCLES 100
+#define ADC_ACQ_DELAY      10  // us
+#define VREF_VOLTAGE       2.048f
+#define ADC_RESOLUTION     1023.0f
+#define VSENSE_VDIV        2.0f / 12.0f
+#define ISENSE_GAIN        11
 
 // Private variables.
-uint8_t  pwmValue       = 0;
+uint16_t pwmValue       = 0;
 uint16_t adcVoltage     = 0;
 uint16_t adcCurrent     = 0;
 uint8_t  adcLastChannel = 0;
 uint16_t targetVoltage  = 0;
 uint16_t targetCurrent  = 0;
+uint16_t pwmCycleDelay  = 0;
 
 /**
  * Regulates the voltage output of the boost converter to make sure it respects
@@ -36,14 +38,19 @@ uint16_t targetCurrent  = 0;
  */
 void RegulateBoostOutput(void) {
 	// Control the PWM in order to maintain regulation.
-	if (((adcVoltage - adcCurrent) < targetVoltage) &&
+	if ((GetBatteryVoltageValue() < targetVoltage) &&
 			(adcCurrent < targetCurrent)) {
 		if (pwmValue < PWM_MAX_VALUE) {
-			pwmValue++;
+			// Delay the ramp up of the voltage a bit to get a more stable output.
+			pwmCycleDelay++;
+			if (pwmCycleDelay == PWM_RAMP_UP_CYCLES) {
+				pwmValue++;
+				pwmCycleDelay = 0;
+			}
 		} else {
 			pwmValue = 0;
 		}
-	} else if (((adcVoltage - adcCurrent) > targetVoltage) ||
+	} else if ((GetBatteryVoltageValue() > targetVoltage) ||
 			(adcCurrent > targetCurrent)) {
 		if (pwmValue > 0)
 			pwmValue--;
@@ -131,6 +138,51 @@ void SetTargetVoltage(const float voltage) {
  */
 void SetTargetCurrent(const float current) {
 	targetCurrent = (current * ISENSE_GAIN) / (VREF_VOLTAGE / ADC_RESOLUTION);
+}
+
+/**
+ * Gets the target voltage ADC value.
+ * 
+ * @return Target voltage ADC value.
+ */
+uint16_t GetTargetVoltageValue(void) {
+	return targetVoltage;
+}
+
+/**
+ * Gets the target current ADC value.
+ * 
+ * @return Target current ADC value.
+ */
+uint16_t GetTargetCurrentValue(void) {
+	return targetCurrent;
+}
+
+/**
+ * Gets the measured voltage ADC value.
+ * 
+ * @return Measured voltage ADC value.
+ */
+uint16_t GetMeasuredVoltageValue(void) {
+	return adcVoltage;
+}
+
+/**
+ * Gets the measured current ADC value.
+ * 
+ * @return Measured current ADC value.
+ */
+uint16_t GetMeasuredCurrentValue(void) {
+	return adcCurrent;
+}
+
+/**
+ * Gets the ADC value of the voltage across the battery.
+ * 
+ * @return ADC value of the battery voltage.
+ */
+inline uint16_t GetBatteryVoltageValue(void) {
+	return adcVoltage - (adcCurrent / ISENSE_GAIN);
 }
 
 /**
