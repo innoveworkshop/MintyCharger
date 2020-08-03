@@ -17,6 +17,7 @@ void InitializeSerial(void);
 extern inline void __attribute__((always_inline)) putc(const char c);
 void print(const char *str);
 void println(const char *str);
+void printi(const int i);
 
 #endif	/* SERIAL_H */
 

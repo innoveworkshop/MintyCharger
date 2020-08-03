@@ -13,6 +13,9 @@
 #include <stdint.h>
 #include "pins.h"
 
+// Private methods.
+char* itoa(const int value);
+
 /**
  * Initializes the serial port.
  */
@@ -67,4 +70,43 @@ void println(const char *str) {
 	print(str);
 	putc('\r');
 	putc('\n');
+}
+
+/**
+ * Sends an integer as a string via serial.
+ * 
+ * @param i Integer value to be sent as string.
+ */
+void printi(const int i) {
+	print(itoa(i));
+}
+
+/**
+ * Converts an integer value into a string.
+ * @see https://www.microchip.com/forums/FindPost/482866
+ * 
+ * @param  value Integer to be converted.
+ * @return       String representation of the integer value.
+ */
+char* itoa(const int value) {
+	static char buffer[12];  // 12-bytes is big enough for an INT32.
+	int original = value;    // Save the original value.
+	int val = value;
+	int c = sizeof(buffer) - 1;
+	buffer[c] = 0;           // Write null terminator to the last string byte.
+	
+	// If it's negative, note that and take the absolute value.
+	if (val < 0)
+		val = -val;
+
+	// Write least significant digit of value that's left.
+	do {
+		buffer[--c] = (val % 10) + '0';
+		val /= 10;
+	} while (val);
+
+	if (original < 0)
+		buffer[--c] = '-';
+
+	return &buffer[c];
 }
