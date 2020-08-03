@@ -44,10 +44,9 @@ void main(void) {
 	InitializePWM();
 	InitializeSerial();
 	EnableInterrupts(1);
-	println("MintyCharger Initialized");
 	
 	// Start the voltage regulation loop.
-	SetTargetVoltage(9.9f);
+	SetTargetVoltage(10.0f);
 	SetTargetCurrent(0.05f);
 	StartNextADCReading();
 	
@@ -64,21 +63,6 @@ void main(void) {
 		} else {
 			pins = CHG_LED0;
 		}
-		
-		// Debugging values.
-		print("Voltage Target: ");
-		printi(GetTargetVoltageValue());
-		print("\r\n");
-		print("Voltage Meas.:  ");
-		printi(GetMeasuredVoltageValue());
-		print("\r\n");
-		print("Current Target: ");
-		printi(GetTargetCurrentValue());
-		print("\r\n");
-		print("Current Meas.:  ");
-		printi(GetMeasuredCurrentValue());
-		print("\r\n");
-		print("\r\n");
 	}
 
 	return;
