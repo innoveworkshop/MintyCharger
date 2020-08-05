@@ -55,6 +55,8 @@ void main(void) {
 		}
 		
 		SelectNextVoltage();
+		SelectNextRate();
+		SelectNextMode();
 		__delay_ms(10);
 	}
 }

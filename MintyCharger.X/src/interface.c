@@ -14,6 +14,9 @@
 #include "pins.h"
 #include "vreg.h"
 
+// Private definitions.
+#define SHIFT_CLOCK_DELAY 10 // us
+
 // Private enumerators.
 typedef enum { NIMH_72V, LTION_74V, NIMH_84V, NIMH_96V } battery_t;
 typedef enum { RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA, RATE_TRICKLE } rate_t;
@@ -32,13 +35,16 @@ void DisplayCurrentConfiguration(void);
  * Light up the correct LEDs depending on what's currently configured.
  */
 void DisplayCurrentConfiguration(void) {
-	for (uint8_t i = 0; i < 16; i++) {
-		LATA = 0;
-		ShiftData(1 << i);
-		LATA = SR_LATCH;
-		
-		__delay_ms(20);
-	}
+	uint16_t lights = 0;
+	
+	// Configure each light that should light up.
+	lights += 1 << (selectedBattery - 3 + 15);
+	if (selectedRate != RATE_TRICKLE)
+		lights += 1 << (selectedRate - 3 + 11);
+	lights += 1 << (selectedMode - 2 + 7);
+	
+	// Shift the light data out.
+	ShiftData(lights);
 }
 
 /**
@@ -128,19 +134,28 @@ void SelectNextMode(void) {
  * @param data 16-bit data to be sent to the shift register.
  */
 void ShiftData(uint16_t data) {
+	// Unlatch.
+	LATA = 0;
+	
+	// Go through each bit sending them LSB-first.
 	for (uint8_t i = 0; i < 16; i++) {
 		if (data & (1 << i)) {
+			// 1
 			LATA = SR_DATA;
-			__delay_us(10);
+			__delay_us(SHIFT_CLOCK_DELAY);
 			LATA = (SR_DATA + SR_CLOCK);
-			__delay_us(10);
+			__delay_us(SHIFT_CLOCK_DELAY);
 		} else {
+			// 0
 			LATA = 0;
-			__delay_us(10);
+			__delay_us(SHIFT_CLOCK_DELAY);
 			LATA = SR_CLOCK;
-			__delay_us(10);
+			__delay_us(SHIFT_CLOCK_DELAY);
 		}
 		
 		LATA = 0;
 	}
+	
+	// Release the latch.
+	LATA = SR_LATCH;
 }
