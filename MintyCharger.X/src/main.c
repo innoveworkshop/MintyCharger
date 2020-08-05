@@ -20,7 +20,6 @@ void EnableInterrupts(const uint8_t enable);
 void InitializeIO(void);
 void InitializeADC(void);
 void InitializePWM(void);
-void InitializeMSSP(void);
 
 /**
  * Application main entry point.
@@ -33,7 +32,6 @@ void main(void) {
 	InitializeIO();
 	InitializeADC();
 	InitializePWM();
-	//InitializeMSSP();
 	EnableInterrupts(1);
 	
 	// Start the voltage regulation ADC loop.
@@ -155,29 +153,6 @@ void InitializePWM(void) {
 	
 	// Enable the PWM.
 	PWM5CONbits.PWM5EN = 1;
-}
-
-/**
- * Initializes the Master Synchronous Serial Port modules.
- */
-void InitializeMSSP(void) {
-	// Unlock the PPS and set the MSSP pins.
-	PPSLOCK = 0x55;
-	PPSLOCK = 0xAA;
-	PPSLOCKbits.PPSLOCKED = 0;    // Unlock the PPS.
-	RA0PPSbits.RA0PPS = 0b11001;  // Set SPI Data Out as pin RA0.
-	RA1PPSbits.RA1PPS = 0b11000;  // Set SPI Clock Out as pin RA1.
-	PPSLOCK = 0x55;
-	PPSLOCK = 0xAA;
-	PPSLOCKbits.PPSLOCKED = 1;    // Lock the PPS.
-	
-	// Configure the MSSP module for master SPI.
-	SSP1STATbits.CKE = 0;        // Transmits on transition from idle to active clock state.
-	SSP1CON1bits.CKP = 0;        // Idle state for the clock is LOW.
-	SSP1CON1bits.SSPM = 0b1010;  // SPI Master with a clock defined by the BRG.
-	SSP1ADD = 0xFF;              // 31.372kHz @ 32MHz.
-	PIE1bits.SSP1IE = 0;         // Disable the interrupt.
-	SSP1CON1bits.SSPEN = 1;      // Enable the module.
 }
 
 /**
