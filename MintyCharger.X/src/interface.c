@@ -16,7 +16,7 @@
 
 // Private enumerators.
 typedef enum { NIMH_72V, LTION_74V, NIMH_84V, NIMH_96V } battery_t;
-typedef enum { RATE_TRICKLE, RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA } rate_t;
+typedef enum { RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA, RATE_TRICKLE } rate_t;
 typedef enum { MODE_CHARGE, MODE_DISCHARGE, MODE_REFRESH } mode_t;
 
 // Private variables.
@@ -24,11 +24,21 @@ battery_t selectedBattery = NIMH_72V;
 rate_t    selectedRate    = RATE_15MA;
 mode_t    selectedMode    = MODE_CHARGE;
 
+// Private methods.
+void ShiftData(uint16_t data);
+void DisplayCurrentConfiguration(void);
+
 /**
- * Light up the correct LEDs depending on what's configured.
+ * Light up the correct LEDs depending on what's currently configured.
  */
 void DisplayCurrentConfiguration(void) {
-	
+	for (uint8_t i = 0; i < 16; i++) {
+		LATA = 0;
+		ShiftData(1 << i);
+		LATA = SR_LATCH;
+		
+		__delay_ms(20);
+	}
 }
 
 /**
@@ -109,4 +119,28 @@ void SelectNextMode(void) {
 	
 	// Show change on board.
 	DisplayCurrentConfiguration();
+}
+
+/**
+ * Sends a 16-bit value to the dual shift registers we have dealing with most of
+ * the lights.
+ * 
+ * @param data 16-bit data to be sent to the shift register.
+ */
+void ShiftData(uint16_t data) {
+	for (uint8_t i = 0; i < 16; i++) {
+		if (data & (1 << i)) {
+			LATA = SR_DATA;
+			__delay_us(10);
+			LATA = (SR_DATA + SR_CLOCK);
+			__delay_us(10);
+		} else {
+			LATA = 0;
+			__delay_us(10);
+			LATA = SR_CLOCK;
+			__delay_us(10);
+		}
+		
+		LATA = 0;
+	}
 }

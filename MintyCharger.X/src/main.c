@@ -6,16 +6,6 @@
  * @author Nathan Campos <nathan@innoveworkshop.com>
  */
 
-//                           16F18325
-//                         +----------+
-//                        -|RA0    RC0|- Voltage Sense - ANC0
-//                        -|RA1    RC1|- Current Sense - ANC1
-// Serial TX              -|RA2    RC2|- Charge LED 0
-// Select Switch          -|RA3    RC3|- Charge LED 1
-// Discharge Enable       -|RA4    RC4|- Charge LED 2
-// Boost DC/DC PWM - PWM1 -|RA5    RC5|- Charge LED 3
-//                         +----------+
-
 #include "config.h"
 #include <xc.h>
 #include <pic16f18325.h>
@@ -23,13 +13,14 @@
 #include <stdint.h>
 #include "pins.h"
 #include "vreg.h"
-#include "serial.h"
+#include "interface.h"
 
 // Function prototypes.
 void EnableInterrupts(const uint8_t enable);
 void InitializeIO(void);
 void InitializeADC(void);
 void InitializePWM(void);
+void InitializeMSSP(void);
 
 /**
  * Application main entry point.
@@ -42,7 +33,7 @@ void main(void) {
 	InitializeIO();
 	InitializeADC();
 	InitializePWM();
-	InitializeSerial();
+	//InitializeMSSP();
 	EnableInterrupts(1);
 	
 	// Start the voltage regulation ADC loop.
@@ -64,6 +55,9 @@ void main(void) {
 		} else {
 			pins = CHG_LED0;
 		}
+		
+		SelectNextVoltage();
+		__delay_ms(10);
 	}
 }
 
@@ -93,10 +87,15 @@ void InitializeIO(void) {
 	TRISA = BTN_SELECT;
 	TRISC = VSENSE + ISENSE;
 	
+	// Disable ALL analog inputs on PORTA.
+	ANSELA = 0;
+	
 	// Setup pull-ups.
+	WPUA = 0;
 	WPUC = 0;
 	
 	// Setup open-drains.
+	ODCONA = 0;
 	ODCONC = CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
 	
 	// Set all the outputs to LOW.
@@ -134,7 +133,7 @@ void InitializePWM(void) {
 	PPSLOCK = 0x55;
 	PPSLOCK = 0xAA;
 	PPSLOCKbits.PPSLOCKED = 0;    // Unlock the PPS.
-	RA5PPSbits.RA5PPS = 0b10;   // Set PWM5 output to RA5.
+	RA5PPSbits.RA5PPS = 0b10;     // Set PWM5 output to RA5.
 	PPSLOCK = 0x55;
 	PPSLOCK = 0xAA;
 	PPSLOCKbits.PPSLOCKED = 1;    // Lock the PPS.
@@ -148,7 +147,7 @@ void InitializePWM(void) {
 	
 	// Setup the Timer2 for PWM operation.
 	PIR1bits.TMR2IF = 0;   // Disable its interrupt.
-	T2CONbits.T2CKPS = 0;  // Prescaler set to 1.
+	T2CONbits.T2CKPS = 0;  // Pre-scaler set to 1.
 	T2CONbits.TMR2ON = 1;  // Enable the timer.
 	
 	// Wait for Timer2 to be ready.
@@ -156,6 +155,29 @@ void InitializePWM(void) {
 	
 	// Enable the PWM.
 	PWM5CONbits.PWM5EN = 1;
+}
+
+/**
+ * Initializes the Master Synchronous Serial Port modules.
+ */
+void InitializeMSSP(void) {
+	// Unlock the PPS and set the MSSP pins.
+	PPSLOCK = 0x55;
+	PPSLOCK = 0xAA;
+	PPSLOCKbits.PPSLOCKED = 0;    // Unlock the PPS.
+	RA0PPSbits.RA0PPS = 0b11001;  // Set SPI Data Out as pin RA0.
+	RA1PPSbits.RA1PPS = 0b11000;  // Set SPI Clock Out as pin RA1.
+	PPSLOCK = 0x55;
+	PPSLOCK = 0xAA;
+	PPSLOCKbits.PPSLOCKED = 1;    // Lock the PPS.
+	
+	// Configure the MSSP module for master SPI.
+	SSP1STATbits.CKE = 0;        // Transmits on transition from idle to active clock state.
+	SSP1CON1bits.CKP = 0;        // Idle state for the clock is LOW.
+	SSP1CON1bits.SSPM = 0b1010;  // SPI Master with a clock defined by the BRG.
+	SSP1ADD = 0xFF;              // 31.372kHz @ 32MHz.
+	PIE1bits.SSP1IE = 0;         // Disable the interrupt.
+	SSP1CON1bits.SSPEN = 1;      // Enable the module.
 }
 
 /**
