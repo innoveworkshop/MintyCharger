@@ -16,10 +16,12 @@
 #include "interface.h"
 
 // Function prototypes.
-void EnableInterrupts(const uint8_t enable);
+void EnableInterrupts(void);
+void DisableInterrupts(void);
 void InitializeIO(void);
 void InitializeADC(void);
 void InitializePWM(void);
+void InitializeButtonHoldTimer(void);
 
 /**
  * Application main entry point.
@@ -28,21 +30,20 @@ void main(void) {
 	uint8_t pins = CHG_LED0;
 	
 	// Initialize everything.
-	EnableInterrupts(0);
+	DisableInterrupts();
 	InitializeIO();
 	InitializeADC();
 	InitializePWM();
-	EnableInterrupts(1);
+	InitializeButtonHoldTimer();
+	EnableInterrupts();
 	
 	// Start the voltage regulation ADC loop.
 	DisableRegulator();
-	SetTargetVoltage(10.0f);
-	SetTargetCurrent(0.05f);
 	StartNextADCReading();
 	
 	// Main application loop.
 	while (true) {
-		if ((PORTA & BTN_SELECT) == 0) {
+		/*if ((PORTA & BTN_SELECT) == 0) {
 			LATC = 0;
 		} else {
 			LATC = ~pins;
@@ -52,12 +53,7 @@ void main(void) {
 			pins <<= 1;
 		} else {
 			pins = CHG_LED0;
-		}
-		
-		SelectNextVoltage();
-		SelectNextRate();
-		SelectNextMode();
-		__delay_ms(10);
+		}*/
 	}
 }
 
@@ -65,8 +61,9 @@ void main(void) {
  * Interrupt service routine.
  */
 void __interrupt() ISR(void) {
+	// ADC interrupt.
 	if (PIR1bits.ADIF == 1) {
-		// ADC interrupt.
+		// Combine registers into a single 10-bit value and store it.
 		uint16_t adcValue = (ADRESH << 8) | ADRESL;
 		StoreADCValue(adcValue);
 		
@@ -76,6 +73,32 @@ void __interrupt() ISR(void) {
 		// Clear the interrupt and start the next reading cycle.
 		PIR1bits.ADIF = 0;
 		StartNextADCReading();
+	}
+	
+	// Select button (INT) interrupt.
+	if (PIR0bits.INTF == 1) {
+		// Restart the hold down timer.
+		T1CONbits.TMR1ON = 0; // Disable the timer.
+		TMR1H = 0;            // Reset the high part of the counter.
+		TMR1L = 0;            // Reset the low part of the counter.
+		T1CONbits.TMR1ON = 1; // Enable the timer.
+		
+		// Clear the interrupt.
+		PIR0bits.INTF = 0;
+	}
+	
+	// Button hold timer (Timer1) interrupt.
+	if (PIR1bits.TMR1IF == 1) {
+		// Check if the button is pressed.
+		if ((PORTA & BTN_SELECT) == 0) {
+			LATC = ~CHG_LED0;
+		} else {
+			LATC = ~CHG_LED3;
+		}
+		
+		// Turn the timer off and clear the interrupt.
+		T1CONbits.TMR1ON = 0;
+		PIR1bits.TMR1IF = 0;
 	}
 }
 
@@ -146,8 +169,8 @@ void InitializePWM(void) {
 	PWM5DCH = 0;
 	
 	// Setup the Timer2 for PWM operation.
-	PIR1bits.TMR2IF = 0;   // Disable its interrupt.
-	T2CONbits.T2CKPS = 0;  // Pre-scaler set to 1.
+	PIE1bits.TMR2IE = 0;   // Disable its interrupt.
+	T2CONbits.T2CKPS = 0;  // Prescaler set to 1.
 	T2CONbits.TMR2ON = 1;  // Enable the timer.
 	
 	// Wait for Timer2 to be ready.
@@ -158,13 +181,44 @@ void InitializePWM(void) {
 }
 
 /**
- * Enable/disables global interrupts.
- * @remark You should set the interrupts of individual peripherals yourself.
- *         This function will only enable/disable them globally.
- * 
- * @param enable Should we enable them?
+ * Initializes the timer that will be used to determine a button hold.
  */
-void EnableInterrupts(const uint8_t enable) {
-	INTCONbits.GIE = enable;
-	INTCONbits.PEIE = enable;
+void InitializeButtonHoldTimer(void) {
+	// Unlock the PPS and set the Select button as a source for the INT interrupt.
+	PPSLOCK = 0x55;
+	PPSLOCK = 0xAA;
+	PPSLOCKbits.PPSLOCKED = 0;    // Unlock the PPS.
+	INTPPSbits.INTPPS = 0b00011;  // Set RA3 as an input to INT.
+	PPSLOCK = 0x55;
+	PPSLOCK = 0xAA;
+	PPSLOCKbits.PPSLOCKED = 1;    // Lock the PPS.
+	PIE0bits.INTE = 1;            // Enable the INT interrupt.
+	INTCONbits.INTEDG = 0;        // Trigger on the falling edge.
+	
+	// Setup the Timer1 as a button hold timer.
+	T1CONbits.TMR1ON = 0;     // Disable the timer.
+	T1CONbits.TMR1CS = 0b11;  // LFINTOSC as the clock source.
+	T1CONbits.T1CKPS = 0b00;  // Prescaler set to 1.
+	T1GCONbits.TMR1GE = 0;    // Disable gating. Will run like any other timer.
+	PIE1bits.TMR1IE = 1;      // Enable its interrupt.
+}
+
+/**
+ * Enables global interrupts.
+ * @remark You should set the interrupts of individual peripherals yourself.
+ *         This function will only enable them globally.
+ */
+void EnableInterrupts(void) {
+	INTCONbits.GIE = 1;
+	INTCONbits.PEIE = 1;
+}
+
+/**
+ * Disables global interrupts.
+ * @remark You should set the interrupts of individual peripherals yourself.
+ *         This function will only disable them globally.
+ */
+void DisableInterrupts(void) {
+	INTCONbits.GIE = 0;
+	INTCONbits.PEIE = 0;
 }
