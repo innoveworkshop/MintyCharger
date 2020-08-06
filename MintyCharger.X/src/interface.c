@@ -16,6 +16,7 @@
 
 // Private definitions.
 #define SHIFT_CLOCK_DELAY 10 // us
+#define LIGHT_SHOW_DELAY  20 // ms
 
 // Private enumerators.
 typedef enum { NIMH_72V, LTION_74V, NIMH_84V, NIMH_96V } battery_t;
@@ -35,6 +36,31 @@ void DisplayCurrentConfiguration(void);
 void SelectNextVoltage(void);
 void SelectNextRate(void);
 void SelectNextMode(void);
+
+/**
+ * Initializes the user interface by putting on a little show.
+ */
+void InitializeUI(void) {
+	// Turn all the lights off for the show.
+	LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
+	ShiftData(0);
+	
+	// Chase the charging indicators.
+	for (uint8_t i = 0; i < 4; i++) {
+		LATC &= ~(CHG_LED0 << i);
+		__delay_ms(LIGHT_SHOW_DELAY);
+		LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
+	}
+	
+	// Chase all the configuration LEDs.
+	for (uint8_t i = 0; i < 11; i++) {
+		ShiftData(0b1000000000000000 >> i);
+		__delay_ms(LIGHT_SHOW_DELAY);
+	}
+	
+	// Display the default startup configuration.
+	DisplayCurrentConfiguration();
+}
 
 /**
  * Light up the correct LEDs depending on what's currently configured.

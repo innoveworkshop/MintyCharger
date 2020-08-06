@@ -12,4 +12,7 @@
 void SelectNextOption(void);
 void NextConfigurationSelection(void);
 
+// Initialization.
+void InitializeUI(void);
+
 #endif	/* INTERFACE_H */

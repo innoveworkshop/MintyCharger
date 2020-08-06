@@ -39,6 +39,7 @@ void main(void) {
 	// Start the voltage regulation ADC loop.
 	DisableRegulator();
 	StartNextADCReading();
+	InitializeUI();
 	
 	// Main application loop.
 	while (true) {
