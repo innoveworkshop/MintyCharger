@@ -9,6 +9,7 @@
 #define	INTERFACE_H
 
 // Selecting configuration.
-void NextSelection(void);
+void SelectNextOption(void);
+void NextConfigurationSelection(void);
 
 #endif	/* INTERFACE_H */

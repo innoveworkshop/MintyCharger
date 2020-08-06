@@ -27,14 +27,13 @@ void InitializeButtonHoldTimer(void);
  * Application main entry point.
  */
 void main(void) {
-	uint8_t pins = CHG_LED0;
-	
 	// Initialize everything.
 	DisableInterrupts();
 	InitializeIO();
 	InitializeADC();
 	InitializePWM();
 	InitializeButtonHoldTimer();
+	__delay_ms(100);              // Give some time for stuff to stabilize.
 	EnableInterrupts();
 	
 	// Start the voltage regulation ADC loop.
@@ -43,17 +42,6 @@ void main(void) {
 	
 	// Main application loop.
 	while (true) {
-		/*if ((PORTA & BTN_SELECT) == 0) {
-			LATC = 0;
-		} else {
-			LATC = ~pins;
-		}
-		
-		if (pins < CHG_LED3) {
-			pins <<= 1;
-		} else {
-			pins = CHG_LED0;
-		}*/
 	}
 }
 
@@ -62,7 +50,7 @@ void main(void) {
  */
 void __interrupt() ISR(void) {
 	// ADC interrupt.
-	if (PIR1bits.ADIF == 1) {
+	if (PIR1bits.ADIF) {
 		// Combine registers into a single 10-bit value and store it.
 		uint16_t adcValue = (ADRESH << 8) | ADRESL;
 		StoreADCValue(adcValue);
@@ -76,24 +64,35 @@ void __interrupt() ISR(void) {
 	}
 	
 	// Select button (INT) interrupt.
-	if (PIR0bits.INTF == 1) {
-		// Restart the hold down timer.
-		T1CONbits.TMR1ON = 0; // Disable the timer.
-		TMR1H = 0;            // Reset the high part of the counter.
-		TMR1L = 0;            // Reset the low part of the counter.
-		T1CONbits.TMR1ON = 1; // Enable the timer.
+	if (PIR0bits.INTF) {
+		// Check if the button is still pressed.
+		if ((PORTA & BTN_SELECT) == 0) {
+			// Restart the hold down timer.
+			T1CONbits.TMR1ON = 0; // Disable the timer.
+			TMR1H = 0;            // Reset the high part of the counter.
+			TMR1L = 0;            // Reset the low part of the counter.
+			T1CONbits.TMR1ON = 1; // Enable the timer.
+		} else {
+			// Check if the timer is running. Detect if it was a single click.
+			if (T1CONbits.TMR1ON) {
+				// Select the next option of the current selection.
+				SelectNextOption();
+			}
+			
+			// Disable the timer.
+			T1CONbits.TMR1ON = 0;
+		}
 		
 		// Clear the interrupt.
 		PIR0bits.INTF = 0;
 	}
 	
 	// Button hold timer (Timer1) interrupt.
-	if (PIR1bits.TMR1IF == 1) {
-		// Check if the button is pressed.
+	if (PIR1bits.TMR1IF) {
+		// Check if the button is still pressed.
 		if ((PORTA & BTN_SELECT) == 0) {
-			LATC = ~CHG_LED0;
-		} else {
-			LATC = ~CHG_LED3;
+			// Go to the next selection.
+			NextConfigurationSelection();
 		}
 		
 		// Turn the timer off and clear the interrupt.
@@ -192,10 +191,10 @@ void InitializeButtonHoldTimer(void) {
 	PPSLOCK = 0x55;
 	PPSLOCK = 0xAA;
 	PPSLOCKbits.PPSLOCKED = 1;    // Lock the PPS.
-	PIE0bits.INTE = 1;            // Enable the INT interrupt.
 	INTCONbits.INTEDG = 0;        // Trigger on the falling edge.
+	PIE0bits.INTE = 1;            // Enable the INT interrupt.
 	
-	// Setup the Timer1 as a button hold timer.
+	// Setup the Timer1 as a button hold timer of ~2s.
 	T1CONbits.TMR1ON = 0;     // Disable the timer.
 	T1CONbits.TMR1CS = 0b11;  // LFINTOSC as the clock source.
 	T1CONbits.T1CKPS = 0b00;  // Prescaler set to 1.

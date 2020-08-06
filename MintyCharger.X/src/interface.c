@@ -53,9 +53,28 @@ void DisplayCurrentConfiguration(void) {
 }
 
 /**
+ * Selects the next option of the current user selection.
+ */
+void SelectNextOption(void) {
+	switch (currentSelection) {
+		case SEL_BATTERY:
+			SelectNextVoltage();
+			break;
+		case SEL_MODE:
+			SelectNextMode();
+			break;
+		case SEL_RATE:
+			SelectNextRate();
+			break;
+		case SEL_RUNNING:
+			break;
+	}
+}
+
+/**
  * Goes into the next selection stage.
  */
-void NextSelection(void) {
+void NextConfigurationSelection(void) {
 	// Change current user selection.
 	if (currentSelection < SEL_RATE) {
 		currentSelection++;
