@@ -15,13 +15,14 @@
 #include "vreg.h"
 #include "interface.h"
 
-// Function prototypes.
+// Private methods.
 void EnableInterrupts(void);
 void DisableInterrupts(void);
 void InitializeIO(void);
 void InitializeADC(void);
 void InitializePWM(void);
 void InitializeButtonHoldTimer(void);
+void InitializeFlashingTimer(void);
 
 /**
  * Application main entry point.
@@ -33,6 +34,7 @@ void main(void) {
 	InitializeADC();
 	InitializePWM();
 	InitializeButtonHoldTimer();
+	InitializeFlashingTimer();
 	__delay_ms(100);              // Give some time for stuff to stabilize.
 	EnableInterrupts();
 	
@@ -99,6 +101,15 @@ void __interrupt() ISR(void) {
 		// Turn the timer off and clear the interrupt.
 		T1CONbits.TMR1ON = 0;
 		PIR1bits.TMR1IF = 0;
+	}
+	
+	// Editing configuration flash timer (Timer6) interrupt.
+	if (PIR2bits.TMR6IF) {
+		// Blinkenlights.
+		FlashCurrentEditableConfiguration();
+		
+		// Clear the interrupt.
+		PIR2bits.TMR6IF = 0;
 	}
 }
 
@@ -201,6 +212,19 @@ void InitializeButtonHoldTimer(void) {
 	T1CONbits.T1CKPS = 0b00;  // Prescaler set to 1.
 	T1GCONbits.TMR1GE = 0;    // Disable gating. Will run like any other timer.
 	PIE1bits.TMR1IE = 1;      // Enable its interrupt.
+}
+
+/**
+ * Initializes the timer that will be used to flash the configuration lights
+ * when configuring the charger.
+ */
+void InitializeFlashingTimer(void) {
+	// Setup Timer6 as the timer for blinkenlights.
+	T6CONbits.TMR6ON = 0;        // Disable the timer.
+	T6CONbits.T6CKPS = 0b11;     // Prescaler set to 64.
+	T6CONbits.T6OUTPS = 0b1111;  // Postscaler set to 16.
+	PR6 = 0xFF;                  // Period set to maximum.
+	PIE2bits.TMR6IE = 1;         // Enable the timer interrupt.
 }
 
 /**

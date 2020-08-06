@@ -11,6 +11,7 @@
 // Selecting configuration.
 void SelectNextOption(void);
 void NextConfigurationSelection(void);
+void FlashCurrentEditableConfiguration(void);
 
 // Initialization.
 void InitializeUI(void);

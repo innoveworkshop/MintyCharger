@@ -29,9 +29,13 @@ battery_t   selectedBattery  = NIMH_72V;
 rate_t      selectedRate     = RATE_15MA;
 mode_t      selectedMode     = MODE_CHARGE;
 selection_t currentSelection = SEL_RUNNING;
+uint16_t    configLights     = 0;
 
 // Private methods.
 void ShiftData(const uint16_t data);
+inline uint16_t __attribute__((always_inline)) SelectedBatteryLED(void);
+inline uint16_t __attribute__((always_inline)) SelectedRateLED(void);
+inline uint16_t __attribute__((always_inline)) SelectedModeLED(void);
 void DisplayCurrentConfiguration(void);
 void SelectNextVoltage(void);
 void SelectNextRate(void);
@@ -58,24 +62,51 @@ void InitializeUI(void) {
 		__delay_ms(LIGHT_SHOW_DELAY);
 	}
 	
+	// Enable the flashing timer.
+	T6CONbits.TMR6ON = 1;
+	
 	// Display the default startup configuration.
 	DisplayCurrentConfiguration();
+}
+
+/**
+ * Indicates to the user that he or she is editing a configuration by flashing
+ * its corresponding LED.
+ */
+void FlashCurrentEditableConfiguration(void) {
+	// Toggle the current selection light.
+	switch (currentSelection) {
+		case SEL_BATTERY:
+			configLights ^= SelectedBatteryLED();
+			break;
+		case SEL_MODE:
+			configLights ^= SelectedModeLED();
+			break;
+		case SEL_RATE:
+			configLights ^= SelectedRateLED();
+			break;
+		case SEL_RUNNING:
+			break;
+	}
+	
+	// Shift the light data out.
+	ShiftData(configLights);
 }
 
 /**
  * Light up the correct LEDs depending on what's currently configured.
  */
 void DisplayCurrentConfiguration(void) {
-	uint16_t lights = 0;
-	
+	// Reset the lights.
+	configLights = 0;
+
 	// Configure each light that should light up.
-	lights += 1 << (selectedBattery - 3 + 15);
-	if (selectedRate != RATE_TRICKLE)
-		lights += 1 << (selectedRate - 3 + 11);
-	lights += 1 << (selectedMode - 2 + 7);
+	configLights += SelectedBatteryLED();
+	configLights += SelectedRateLED();
+	configLights += SelectedModeLED();
 	
 	// Shift the light data out.
-	ShiftData(lights);
+	ShiftData(configLights);
 }
 
 /**
@@ -190,6 +221,37 @@ void SelectNextMode(void) {
 	
 	// Show change on board.
 	DisplayCurrentConfiguration();
+}
+
+/**
+ * Gets the selected battery configuration LED to shift out.
+ * 
+ * @return Selected battery configuration LED position.
+ */
+inline uint16_t SelectedBatteryLED(void) {
+	return 1 << (selectedBattery - 3 + 15);
+}
+
+/**
+ * Gets the selected rate configuration LED to shift out.
+ * 
+ * @return Selected rate configuration LED position.
+ */
+inline uint16_t SelectedRateLED(void) {
+	// Ignore the trickle rate.
+	if (selectedRate == RATE_TRICKLE)
+		return 0;
+	
+	return 1 << (selectedRate - 3 + 11);
+}
+
+/**
+ * Gets the selected mode configuration LED to shift out.
+ * 
+ * @return Selected mode configuration LED position.
+ */
+inline uint16_t SelectedModeLED(void) {
+	return 1 << (selectedMode - 2 + 7);
 }
 
 /**
