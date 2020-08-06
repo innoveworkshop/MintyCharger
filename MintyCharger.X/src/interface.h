@@ -9,8 +9,6 @@
 #define	INTERFACE_H
 
 // Selecting configuration.
-void SelectNextVoltage(void);
-void SelectNextRate(void);
-void SelectNextMode(void);
+void NextSelection(void);
 
 #endif	/* INTERFACE_H */

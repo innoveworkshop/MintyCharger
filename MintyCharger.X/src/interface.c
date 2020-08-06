@@ -21,15 +21,20 @@
 typedef enum { NIMH_72V, LTION_74V, NIMH_84V, NIMH_96V } battery_t;
 typedef enum { RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA, RATE_TRICKLE } rate_t;
 typedef enum { MODE_CHARGE, MODE_DISCHARGE, MODE_REFRESH } mode_t;
+typedef enum { SEL_RUNNING, SEL_BATTERY, SEL_MODE, SEL_RATE } selection_t;
 
 // Private variables.
-battery_t selectedBattery = NIMH_72V;
-rate_t    selectedRate    = RATE_15MA;
-mode_t    selectedMode    = MODE_CHARGE;
+battery_t   selectedBattery  = NIMH_72V;
+rate_t      selectedRate     = RATE_15MA;
+mode_t      selectedMode     = MODE_CHARGE;
+selection_t currentSelection = SEL_RUNNING;
 
 // Private methods.
-void ShiftData(uint16_t data);
+void ShiftData(const uint16_t data);
 void DisplayCurrentConfiguration(void);
+void SelectNextVoltage(void);
+void SelectNextRate(void);
+void SelectNextMode(void);
 
 /**
  * Light up the correct LEDs depending on what's currently configured.
@@ -45,6 +50,21 @@ void DisplayCurrentConfiguration(void) {
 	
 	// Shift the light data out.
 	ShiftData(lights);
+}
+
+/**
+ * Goes into the next selection stage.
+ */
+void NextSelection(void) {
+	// Change current user selection.
+	if (currentSelection < SEL_RATE) {
+		currentSelection++;
+	} else {
+		currentSelection = SEL_RUNNING;
+	}
+	
+	// Show change on board.
+	DisplayCurrentConfiguration();
 }
 
 /**
@@ -133,29 +153,30 @@ void SelectNextMode(void) {
  * 
  * @param data 16-bit data to be sent to the shift register.
  */
-void ShiftData(uint16_t data) {
+void ShiftData(const uint16_t data) {
 	// Unlatch.
-	LATA = 0;
+	LATA &= ~(SR_DATA + SR_CLOCK + SR_LATCH);
 	
 	// Go through each bit sending them LSB-first.
 	for (uint8_t i = 0; i < 16; i++) {
 		if (data & (1 << i)) {
 			// 1
-			LATA = SR_DATA;
+			LATA |= SR_DATA;
 			__delay_us(SHIFT_CLOCK_DELAY);
-			LATA = (SR_DATA + SR_CLOCK);
+			LATA |= SR_CLOCK;
 			__delay_us(SHIFT_CLOCK_DELAY);
 		} else {
 			// 0
-			LATA = 0;
+			LATA &= ~(SR_DATA + SR_CLOCK);
 			__delay_us(SHIFT_CLOCK_DELAY);
-			LATA = SR_CLOCK;
+			LATA |= SR_CLOCK;
 			__delay_us(SHIFT_CLOCK_DELAY);
 		}
 		
-		LATA = 0;
+		// Make sure all lines are LOW.
+		LATA &= ~(SR_DATA + SR_CLOCK);
 	}
 	
 	// Release the latch.
-	LATA = SR_LATCH;
+	LATA |= SR_LATCH;
 }
