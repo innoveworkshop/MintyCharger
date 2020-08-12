@@ -44,6 +44,7 @@ Simulations/
 *.job
 
 # CAM files.
+CAM/
 *.$$$
 *.cmp
 *.ly2
