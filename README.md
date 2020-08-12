@@ -1,6 +1,19 @@
 # MintyCharger
 
-A complete 9V (9.6V and 8.4V) NiMH charger that fits neatly inside an Altoids tin.
+A complete 9V battery charger that fits neatly inside an Altoids tin.
+
+
+## Supported Batteries
+
+This charger is capable of working with the following battery types and nominal
+voltages:
+
+  - NiMH
+    - 9.6V
+	- 8.4V
+	- 7.2V
+  - Lithium
+    - 7.4V
 
 
 ## License
