@@ -42,6 +42,10 @@ void main(void) {
 	DisableRegulator();
 	StartNextADCReading();
 	InitializeUI();
+	SetTargetVoltage(10.0f);
+	SetTargetCurrent(0.05f);
+	StartNextADCReading();  // TODO: Is this needed?
+    EnableRegulator();
 	
 	// Main application loop.
 	while (true) {

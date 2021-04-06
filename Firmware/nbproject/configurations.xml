@@ -4,11 +4,11 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>src/config.h</itemPath>
-      <itemPath>src/pins.h</itemPath>
-      <itemPath>src/serial.h</itemPath>
-      <itemPath>src/vreg.h</itemPath>
-      <itemPath>src/interface.h</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/config.h</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/interface.h</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/pins.h</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/serial.h</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -17,20 +17,19 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>src/main.c</itemPath>
-      <itemPath>src/serial.c</itemPath>
-      <itemPath>src/vreg.c</itemPath>
-      <itemPath>src/interface.c</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/interface.c</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/main.c</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/serial.c</itemPath>
+      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
-    <itemPath>../README.md</itemPath>
   </logicalFolder>
   <sourceRootList>
-    <Elem>..</Elem>
+    <Elem>//MULBERRY/Projects/MintyCharger/Firmware/src</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -42,11 +41,11 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>2.20</languageToolchainVersion>
+        <languageToolchainVersion>2.32</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC16F1xxxx_DFP" vendor="Microchip" version="1.4.119"/>
+        <pack name="PIC16F1xxxx_DFP" vendor="Microchip" version="1.5.133"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -67,6 +66,7 @@
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeUseCleanTarget>false</makeUseCleanTarget>
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
@@ -82,7 +82,7 @@
         <property key="default-char-type" value="true"/>
         <property key="define-macros" value=""/>
         <property key="disable-optimizations" value="true"/>
-        <property key="extra-include-directories" value=""/>
+        <property key="extra-include-directories" value="src"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
         <property key="garbage-collect-data" value="true"/>
         <property key="garbage-collect-functions" value="true"/>
@@ -162,7 +162,6 @@
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -213,6 +212,7 @@
         <property key="stack-size-main" value="auto"/>
         <property key="stack-type" value="compiled"/>
         <property key="user-pack-device-support" value=""/>
+        <property key="wpo-lto" value="false"/>
       </XC8-config-global>
     </conf>
   </confs>

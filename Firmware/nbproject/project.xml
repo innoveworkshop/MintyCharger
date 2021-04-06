@@ -4,7 +4,7 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
             <name>MintyCharger</name>
-            <creation-uuid>4fc5c0c3-9080-49b4-b7c7-58ef8cccfd2d</creation-uuid>
+            <creation-uuid>5453004a-96d0-4849-9593-659a925c1c16</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions>c</c-extensions>
             <cpp-extensions/>
@@ -13,7 +13,7 @@
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
             <sourceRootList>
-                <sourceRootElem>..</sourceRootElem>
+                <sourceRootElem>//MULBERRY/Projects/MintyCharger/Firmware/src</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

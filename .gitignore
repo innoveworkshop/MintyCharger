@@ -7,6 +7,20 @@
 *.pptx
 Simulations/
 
+# Firmware.
+Firmware/html/
+Firmware/nbproject/private/
+Firmware/nbproject/Package-*.bash
+Firmware/build/
+Firmware/nbbuild/
+Firmware/dist/
+Firmware/nbdist/
+Firmware/nbactions.xml
+Firmware/nb-configuration.xml
+Firmware/funclist
+Firmware/nbproject/Makefile-*
+Firmware/disassembly/
+
 # MPLAB X.
 *.d
 *.pre

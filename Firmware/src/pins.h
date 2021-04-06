@@ -20,11 +20,11 @@
 
 
 // Pin definitions.
-#define SR_DATA    1         // RA0
-#define SR_CLOCK   (1 << 1)  // RA1
-#define SR_LATCH   (1 << 2)  // RA2
+#define DISCH_VSET 1         // RA0
+#define SR_DATA    (1 << 1)  // RA1
+#define SR_CLOCK   (1 << 2)  // RA2
 #define BTN_SELECT (1 << 3)  // RA3
-#define DISCH_EN   (1 << 4)  // RA4
+#define SR_LATCH   (1 << 4)  // RA4
 #define BOOST_PWM  (1 << 5)  // RA5
 #define VSENSE     1         // RC0
 #define ISENSE     (1 << 1)  // RC1
