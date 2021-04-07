@@ -9,6 +9,7 @@
 #ifndef VREG_H
 #define	VREG_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 // Battery status.
@@ -21,6 +22,12 @@ void DisableRegulator(void);
 void SetTargetVoltage(const float voltage);
 void SetTargetCurrent(const float current);
 void RegulateBoostOutput(void);
+bool IsConstantCurrent(void);
+
+// Charging process.
+void SetFinishedCharging(void);
+void ClearFinishedCharging(void);
+bool IsFinishedCharging(void);
 
 // ADC stuff.
 void AcquireADC(const uint8_t channel);

@@ -13,25 +13,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "pins.h"
+#include "interface.h"
 
 // Some definitions.
 #define PWM_MAX_VALUE      1022
 #define PWM_RAMP_UP_CYCLES 100
 #define ADC_ACQ_DELAY      10  // us
-#define VREF_VOLTAGE       2.048f
+#define VREF_VOLTAGE       2.048f  // V
 #define ADC_RESOLUTION     1023.0f
 #define VSENSE_VDIV        2.0f / 12.0f
 #define ISENSE_GAIN        11
+#define NIMH_ICUTOFF       25  // ~5mA
+#define LTION_ICUTOFF      55  // ~10mA
 
 // Private variables.
-bool     enabled        = false;
-uint16_t pwmValue       = 0;
-uint16_t adcVoltage     = 0;
-uint16_t adcCurrent     = 0;
-uint8_t  adcLastChannel = 0;
-uint16_t targetVoltage  = 0;
-uint16_t targetCurrent  = 0;
-uint16_t pwmCycleDelay  = 0;
+bool     enabled          = false;
+uint16_t pwmValue         = 0;
+uint16_t adcVoltage       = 0;
+uint16_t adcCurrent       = 0;
+uint8_t  adcLastChannel   = 0;
+uint16_t targetVoltage    = 0;
+uint16_t targetCurrent    = 0;
+uint16_t pwmCycleDelay    = 0;
+bool     finishedCharging = false;
 
 /**
  * Enables the voltage regulator.
@@ -80,6 +84,15 @@ void RegulateBoostOutput(void) {
 		if (pwmValue > 0)
 			pwmValue--;
 	}
+    
+    // Detect the end of charge.
+    if (IsLithiumBattery()) {
+        if (GetBatteryCurrent() < LTION_ICUTOFF)
+            SetFinishedCharging();
+    } else {
+        if (GetBatteryCurrent() < NIMH_ICUTOFF)
+            SetFinishedCharging();
+    }
 	
 	SetPWMDutyCycle(pwmValue);
 }
@@ -166,6 +179,25 @@ void SetTargetCurrent(const float current) {
 }
 
 /**
+ * Finishes the charging process.
+ */
+void SetFinishedCharging(void) {
+    finishedCharging = true;
+    
+    // Completely stop charging if it is a lithium battery.
+    if (IsLithiumBattery())
+        DisableRegulator();
+}
+
+/**
+ * Clears the finished charging flag.
+ */
+void ClearFinishedCharging(void) {
+    finishedCharging = false;
+    EnableRegulator();
+}
+
+/**
  * Gets the target voltage ADC value.
  * 
  * @return Target voltage ADC value.
@@ -226,4 +258,22 @@ float GetBatteryVoltage(void) {
  */
 float GetBatteryCurrent(void) {
 	return (adcCurrent * (VREF_VOLTAGE / ADC_RESOLUTION)) / ISENSE_GAIN;
+}
+
+/**
+ * Checks if the regulator is currently in constant current mode.
+ * 
+ * @return Is in constant current mode?
+ */
+bool IsConstantCurrent(void) {
+    return GetMeasuredCurrentValue() < GetTargetCurrentValue();
+}
+
+/**
+ * Checks if the charge cycle has finished.
+ * 
+ * @return Have we finished charging?
+ */
+bool IsFinishedCharging(void) {
+    return finishedCharging;
 }
