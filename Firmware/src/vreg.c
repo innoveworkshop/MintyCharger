@@ -261,6 +261,34 @@ float GetBatteryCurrent(void) {
 }
 
 /**
+ * Gets the estimate of the individual cell voltages inside the battery.
+ * 
+ * @return Individual cell voltage.
+ */
+float GetCellVoltage(void) {
+    uint8_t numCells = 1;
+    
+    // Check which type of chemistry do we have.
+    if (IsLithiumBattery()) {
+        numCells = 2;
+    } else {
+        switch (GetSelectedBattery()) {
+            case NIMH_72V:
+                numCells = 6;
+                break;
+            case NIMH_84V:
+                numCells = 7;
+                break;
+            case NIMH_96V:
+                numCells = 8;
+                break;
+        }
+    }
+    
+    return GetBatteryVoltage() / (float)numCells;
+}
+
+/**
  * Checks if the regulator is currently in constant current mode.
  * 
  * @return Is in constant current mode?

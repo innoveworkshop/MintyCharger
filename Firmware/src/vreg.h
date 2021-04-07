@@ -15,6 +15,7 @@
 // Battery status.
 float GetBatteryVoltage(void);
 float GetBatteryCurrent(void);
+float GetCellVoltage(void);
 
 // Voltage/current regulation.
 void EnableRegulator(void);
