@@ -14,6 +14,7 @@
 #include "pins.h"
 #include "vreg.h"
 #include "interface.h"
+#include "gauge.h"
 
 // Private methods.
 void EnableInterrupts(void);
@@ -42,9 +43,8 @@ void main(void) {
 	DisableRegulator();
 	StartNextADCReading();
 	InitializeUI();
-	SetTargetVoltage(10.0f);
-	SetTargetCurrent(0.05f);
-	StartNextADCReading();  // TODO: Is this needed?
+	SetTargetVoltage(10.4f);
+	SetTargetCurrent(0.1f);
     EnableRegulator();
 	
 	// Main application loop.
@@ -111,7 +111,8 @@ void __interrupt() ISR(void) {
 	if (PIR2bits.TMR6IF) {
 		// Blinkenlights.
 		FlashCurrentEditableConfiguration();
-		
+        DisplayBatteryGauge();
+
 		// Clear the interrupt.
 		PIR2bits.TMR6IF = 0;
 	}
