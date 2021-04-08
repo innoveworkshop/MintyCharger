@@ -15,6 +15,12 @@
 #include "interface.h"
 #include "vreg.h"
 
+// Private variables.
+uint8_t blinkState = 0;
+
+// Private methods.
+void BlinkChargingState(uint8_t *gauge);
+
 /**
  * Updates the gauge display.
  */
@@ -23,41 +29,66 @@ void DisplayBatteryGauge(void) {
     float voltage = GetCellVoltage();
     
     if (IsLithiumBattery()) {
-        // 25%
-        if (voltage > 3.75f)
-            gauge |= 0b0001;
-        
-        // 50%
-        if (voltage > 3.85f)
-            gauge |= 0b0010;
-        
-        // 75%
-        if (voltage > 4.00f)
-            gauge |= 0b0100;
-        
-        // 100%
-        if (IsFinishedCharging())
-            gauge |= 0b1000;
+        /*if (IsFinishedCharging()) {
+            // 100%
+            gauge = ~(0b1111);
+        } else*/ if (voltage > 4.00f) {
+            // 75%
+            gauge = ~(0b0111);
+        } else if (voltage > 3.85f) {
+            // 50%
+            gauge = ~(0b0011);
+        } else if (voltage > 3.75f) {
+            // 25%
+            gauge = ~(0b0001);
+        }
     } else {
-        // 25%
-        if (voltage > 1.20f)
-            gauge |= 0b0001;
-        
-        // 50%
-        if (voltage > 1.35f)
-            gauge |= 0b0010;
-        
-        // 75%
-        if (voltage > 1.42f)
-            gauge |= 0b0100;
-        
-        // 100%
-        if (IsFinishedCharging())
-            gauge |= 0b1000;
+        /*if (IsFinishedCharging()) {
+            // 100%
+            gauge = ~(0b1111);
+        } else*/ if (voltage > 1.42f) {
+            // 75%
+            gauge = ~(0b0111);
+        } else if (voltage > 1.35f) {
+            // 50%
+            gauge = ~(0b0011);
+        } else if (voltage > 1.20f) {
+            // 25%
+            gauge = ~(0b0001);
+        }
     }
+    
+    // Blink them lights.
+    BlinkChargingState(&gauge);
     
     // Shift gauge to start at RC2 and push changes to the IO pins.
     gauge <<= 2;
-    gauge += 0b11;
-    LATC &= gauge;
+    LATC = gauge;
+}
+
+/**
+ * Blinks the current charging state in the battery gauge. This gives the user
+ * some feedback about what's happening.
+ * 
+ * @param gauge Pointer to the gauge LEDs variable (RC0 referenced).
+ */
+void BlinkChargingState(uint8_t *gauge) {
+    // Determine which bit to flip, making sure we are only getting the first 4 bits
+    switch (*gauge & 0b1111) {
+        case 0b1111:
+            *gauge ^= blinkState;
+            break;
+        case 0b1110:
+            *gauge ^= (blinkState << 1);
+            break;
+        case 0b1100:
+            *gauge ^= (blinkState << 2);
+            break;
+        case 0b1000:
+            *gauge ^= (blinkState << 3);
+            break;
+    }
+
+    // Flip the blink flag.
+    blinkState ^= 1;
 }
