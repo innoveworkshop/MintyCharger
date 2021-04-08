@@ -248,7 +248,7 @@ inline uint16_t GetBatteryVoltageValue(void) {
  * @return Current battery voltage.
  */
 float GetBatteryVoltage(void) {
-	return (adcVoltage * (VREF_VOLTAGE / ADC_RESOLUTION)) / VSENSE_VDIV;
+	return (GetBatteryVoltageValue() * (VREF_VOLTAGE / ADC_RESOLUTION)) / VSENSE_VDIV;
 }
 
 /**
@@ -257,7 +257,7 @@ float GetBatteryVoltage(void) {
  * @return Battery current.
  */
 float GetBatteryCurrent(void) {
-	return (adcCurrent * (VREF_VOLTAGE / ADC_RESOLUTION)) / ISENSE_GAIN;
+	return (GetMeasuredCurrentValue() * (VREF_VOLTAGE / ADC_RESOLUTION)) / ISENSE_GAIN;
 }
 
 /**
