@@ -17,7 +17,8 @@
 
 // Some definitions.
 #define PWM_MAX_VALUE      1022
-#define PWM_RAMP_UP_CYCLES 100
+#define PWM_INC_STEP       1
+#define PWM_DEC_STEP       1
 #define ADC_ACQ_DELAY      10  // us
 #define VREF_VOLTAGE       2.048f  // V
 #define ADC_RESOLUTION     1023.0f
@@ -27,23 +28,20 @@
 #define LTION_ICUTOFF      55  // ~10mA
 
 // Private variables.
-bool     enabled          = false;
-uint16_t pwmValue         = 0;
-uint16_t adcVoltage       = 0;
-uint16_t adcCurrent       = 0;
-uint8_t  adcLastChannel   = 0;
-uint16_t targetVoltage    = 0;
-uint16_t targetCurrent    = 0;
-uint16_t pwmCycleDelay    = 0;
-bool     finishedCharging = false;
+bool enabled = false;
+uint16_t pwmValue = 0;
+uint16_t adcVoltage = 0;
+uint16_t adcCurrent = 0;
+uint8_t adcLastChannel = 0;
+uint16_t targetVoltage = 0;
+uint16_t targetCurrent = 0;
+bool finishedCharging = false;
 
 /**
  * Enables the voltage regulator.
  */
 void EnableRegulator(void) {
 	pwmValue = 0;
-	pwmCycleDelay = 0;
-
 	enabled = true;
 }
 
@@ -52,9 +50,7 @@ void EnableRegulator(void) {
  */
 void DisableRegulator(void) {
 	pwmValue = 0;
-	pwmCycleDelay = 0;
 	SetPWMDutyCycle(pwmValue);
-
 	enabled = false;
 }
 
@@ -69,31 +65,31 @@ void RegulateBoostOutput(void) {
 	// Control the PWM in order to maintain regulation.
 	if ((GetBatteryVoltageValue() < targetVoltage) &&
 			(adcCurrent < targetCurrent)) {
-		if (pwmValue < PWM_MAX_VALUE) {
-			// Delay the ramp up of the voltage a bit to get a more stable output.
-			pwmCycleDelay++;
-			if (pwmCycleDelay == PWM_RAMP_UP_CYCLES) {
-				pwmValue++;
-				pwmCycleDelay = 0;
-			}
+		// Ramp up the voltage.
+		if (pwmValue < (PWM_MAX_VALUE - PWM_INC_STEP)) {
+			pwmValue += PWM_INC_STEP;
 		} else {
-			pwmValue = 0;
+			pwmValue = PWM_MAX_VALUE;
 		}
 	} else if ((GetBatteryVoltageValue() > targetVoltage) ||
 			(adcCurrent > targetCurrent)) {
-		if (pwmValue > 0)
-			pwmValue--;
+		// Ramp down the voltage.
+		if (pwmValue > PWM_DEC_STEP) {
+			pwmValue -= PWM_DEC_STEP;
+		} else {
+			pwmValue = 0;
+		}
 	}
-    
-    // Detect the end of charge.
-    if (IsLithiumBattery()) {
-        if (GetBatteryCurrent() < LTION_ICUTOFF)
-            SetFinishedCharging();
-    } else {
-        if (GetBatteryCurrent() < NIMH_ICUTOFF)
-            SetFinishedCharging();
-    }
-	
+
+	// Detect the end of charge.
+	if (IsLithiumBattery()) {
+		if (GetBatteryCurrent() < LTION_ICUTOFF)
+			SetFinishedCharging();
+	} else {
+		if (GetBatteryCurrent() < NIMH_ICUTOFF)
+			SetFinishedCharging();
+	}
+
 	SetPWMDutyCycle(pwmValue);
 }
 
@@ -107,15 +103,15 @@ void RegulateBoostOutput(void) {
 void AcquireADC(const uint8_t channel) {
 	// Switch to Vss first to make sure we can accurately read a smaller voltage.
 	ADCON0bits.CHS = 0b111100;
-	__delay_us(1);              // Let the hold capacitor discharge.
-	
+	__delay_us(1); // Let the hold capacitor discharge.
+
 	// Set the ADC channel and store it for later.
 	ADCON0bits.CHS = channel;
 	adcLastChannel = channel;
 
 	// Start an acquisition.
-	__delay_us(ADC_ACQ_DELAY);  // Acquisition delay.
-	ADCON0bits.GO = 1;          // Start conversion.
+	__delay_us(ADC_ACQ_DELAY); // Acquisition delay.
+	ADCON0bits.GO = 1; // Start conversion.
 }
 
 /**
@@ -156,7 +152,7 @@ void StartNextADCReading(void) {
  * @param pwmDutyCycle 10-bit value that represents the duty cycle.
  */
 void SetPWMDutyCycle(const uint16_t pwmDutyCycle) {
-	PWM5DCL = (uint8_t)(pwmDutyCycle << 6);
+	PWM5DCL = (uint8_t) (pwmDutyCycle << 6);
 	PWM5DCH = pwmDutyCycle >> 2;
 }
 
@@ -182,19 +178,19 @@ void SetTargetCurrent(const float current) {
  * Finishes the charging process.
  */
 void SetFinishedCharging(void) {
-    finishedCharging = true;
-    
-    // Completely stop charging if it is a lithium battery.
-    if (IsLithiumBattery())
-        DisableRegulator();
+	finishedCharging = true;
+
+	// Completely stop charging if it is a lithium battery.
+	if (IsLithiumBattery())
+		DisableRegulator();
 }
 
 /**
  * Clears the finished charging flag.
  */
 void ClearFinishedCharging(void) {
-    finishedCharging = false;
-    EnableRegulator();
+	finishedCharging = false;
+	EnableRegulator();
 }
 
 /**
@@ -266,26 +262,24 @@ float GetBatteryCurrent(void) {
  * @return Individual cell voltage.
  */
 float GetCellVoltage(void) {
-    uint8_t numCells = 1;
-    
-    // Check which type of chemistry do we have.
-    if (IsLithiumBattery()) {
-        numCells = 2;
-    } else {
-        switch (GetSelectedBattery()) {
-            case NIMH_72V:
-                numCells = 6;
-                break;
-            case NIMH_84V:
-                numCells = 7;
-                break;
-            case NIMH_96V:
-                numCells = 8;
-                break;
-        }
-    }
-    
-    return GetBatteryVoltage() / (float)numCells;
+	uint8_t numCells = 1;
+
+	switch (GetSelectedBattery()) {
+		case NIMH_72V:
+			numCells = 6;
+			break;
+		case LTION_74V:
+			numCells = 2;
+			break;
+		case NIMH_84V:
+			numCells = 7;
+			break;
+		case NIMH_96V:
+			numCells = 8;
+			break;
+	}
+
+	return GetBatteryVoltage() / (float) numCells;
 }
 
 /**
@@ -294,7 +288,7 @@ float GetCellVoltage(void) {
  * @return Is in constant current mode?
  */
 bool IsConstantCurrent(void) {
-    return GetMeasuredCurrentValue() < GetTargetCurrentValue();
+	return GetMeasuredCurrentValue() < GetTargetCurrentValue();
 }
 
 /**
@@ -303,5 +297,5 @@ bool IsConstantCurrent(void) {
  * @return Have we finished charging?
  */
 bool IsFinishedCharging(void) {
-    return finishedCharging;
+	return finishedCharging;
 }
