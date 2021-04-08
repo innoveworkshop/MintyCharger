@@ -21,7 +21,7 @@
 #define ADC_ACQ_DELAY      10  // us
 #define VREF_VOLTAGE       2.048f  // V
 #define ADC_RESOLUTION     1023.0f
-#define VSENSE_VDIV        2.0f / 12.0f
+#define VSENSE_VDIV        (2.0f / 12.0f)
 #define ISENSE_GAIN        11
 #define NIMH_ICUTOFF       25  // ~5mA
 #define LTION_ICUTOFF      55  // ~10mA
