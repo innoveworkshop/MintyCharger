@@ -28,14 +28,14 @@
 #define LTION_ICUTOFF      55  // ~10mA
 
 // Private variables.
-bool enabled = false;
-uint16_t pwmValue = 0;
-uint16_t adcVoltage = 0;
-uint16_t adcCurrent = 0;
+bool enabled           = false;
+uint16_t pwmValue      = 0;
+uint16_t adcVoltage    = 0;
+uint16_t adcCurrent    = 0;
 uint8_t adcLastChannel = 0;
 uint16_t targetVoltage = 0;
 uint16_t targetCurrent = 0;
-bool finishedCharging = false;
+bool finishedCharging  = false;
 
 /**
  * Enables the voltage regulator.

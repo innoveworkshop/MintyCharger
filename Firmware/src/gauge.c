@@ -25,45 +25,45 @@ void BlinkChargingState(uint8_t *gauge);
  * Updates the gauge display.
  */
 void DisplayBatteryGauge(void) {
-    uint8_t gauge = 0b0000;
-    float voltage = GetCellVoltage();
-    
-    if (IsLithiumBattery()) {
-        /*if (IsFinishedCharging()) {
-            // 100%
-            gauge = ~(0b1111);
-        } else*/ if (voltage > 4.00f) {
-            // 75%
-            gauge = ~(0b0111);
-        } else if (voltage > 3.85f) {
-            // 50%
-            gauge = ~(0b0011);
-        } else if (voltage > 3.75f) {
-            // 25%
-            gauge = ~(0b0001);
-        }
-    } else {
-        /*if (IsFinishedCharging()) {
-            // 100%
-            gauge = ~(0b1111);
-        } else*/ if (voltage > 1.42f) {
-            // 75%
-            gauge = ~(0b0111);
-        } else if (voltage > 1.35f) {
-            // 50%
-            gauge = ~(0b0011);
-        } else if (voltage > 1.20f) {
-            // 25%
-            gauge = ~(0b0001);
-        }
-    }
-    
-    // Blink them lights.
-    BlinkChargingState(&gauge);
-    
-    // Shift gauge to start at RC2 and push changes to the IO pins.
-    gauge <<= 2;
-    LATC = gauge;
+	uint8_t gauge = 0b0000;
+	float voltage = GetCellVoltage();
+
+	if (IsLithiumBattery()) {
+		/*if (IsFinishedCharging()) {
+			// 100%
+			gauge = ~(0b1111);
+		} else*/ if (voltage > 4.00f) {
+			// 75%
+			gauge = ~(0b0111);
+		} else if (voltage > 3.85f) {
+			// 50%
+			gauge = ~(0b0011);
+		} else if (voltage > 3.75f) {
+			// 25%
+			gauge = ~(0b0001);
+		}
+	} else {
+		/*if (IsFinishedCharging()) {
+			// 100%
+			gauge = ~(0b1111);
+		} else*/ if (voltage > 1.42f) {
+			// 75%
+			gauge = ~(0b0111);
+		} else if (voltage > 1.35f) {
+			// 50%
+			gauge = ~(0b0011);
+		} else if (voltage > 1.20f) {
+			// 25%
+			gauge = ~(0b0001);
+		}
+	}
+
+	// Blink them lights.
+	BlinkChargingState(&gauge);
+
+	// Shift gauge to start at RC2 and push changes to the IO pins.
+	gauge <<= 2;
+	LATC = gauge;
 }
 
 /**
@@ -73,22 +73,22 @@ void DisplayBatteryGauge(void) {
  * @param gauge Pointer to the gauge LEDs variable (RC0 referenced).
  */
 void BlinkChargingState(uint8_t *gauge) {
-    // Determine which bit to flip, making sure we are only getting the first 4 bits
-    switch (*gauge & 0b1111) {
-        case 0b1111:
-            *gauge ^= blinkState;
-            break;
-        case 0b1110:
-            *gauge ^= (blinkState << 1);
-            break;
-        case 0b1100:
-            *gauge ^= (blinkState << 2);
-            break;
-        case 0b1000:
-            *gauge ^= (blinkState << 3);
-            break;
-    }
+	// Determine which bit to flip, making sure we are only getting the first 4 bits
+	switch (*gauge & 0b1111) {
+		case 0b1111:
+			*gauge ^= blinkState;
+			break;
+		case 0b1110:
+			*gauge ^= (blinkState << 1);
+			break;
+		case 0b1100:
+			*gauge ^= (blinkState << 2);
+			break;
+		case 0b1000:
+			*gauge ^= (blinkState << 3);
+			break;
+	}
 
-    // Flip the blink flag.
-    blinkState ^= 1;
+	// Flip the blink flag.
+	blinkState ^= 1;
 }

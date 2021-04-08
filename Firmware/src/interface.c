@@ -19,16 +19,25 @@
 #define LIGHT_SHOW_DELAY  20 // ms
 
 // Private enumerators.
-typedef enum { RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA, RATE_TRICKLE } rate_t;
-typedef enum { MODE_CHARGE, MODE_DISCHARGE, MODE_REFRESH } mode_t;
-typedef enum { SEL_RUNNING, SEL_BATTERY, SEL_MODE, SEL_RATE } selection_t;
+
+typedef enum {
+	RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA, RATE_TRICKLE
+} rate_t;
+
+typedef enum {
+	MODE_CHARGE, MODE_DISCHARGE, MODE_REFRESH
+} mode_t;
+
+typedef enum {
+	SEL_RUNNING, SEL_BATTERY, SEL_MODE, SEL_RATE
+} selection_t;
 
 // Private variables.
-battery_t   selectedBattery  = NIMH_72V;
-rate_t      selectedRate     = RATE_15MA;
-mode_t      selectedMode     = MODE_CHARGE;
+battery_t selectedBattery = NIMH_72V;
+rate_t selectedRate = RATE_15MA;
+mode_t selectedMode = MODE_CHARGE;
 selection_t currentSelection = SEL_RUNNING;
-uint16_t    configLights     = 0;
+uint16_t configLights = 0;
 
 // Private methods.
 void ShiftData(const uint16_t data);
@@ -47,23 +56,23 @@ void InitializeUI(void) {
 	// Turn all the lights off for the show.
 	LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
 	ShiftData(0);
-	
+
 	// Chase the charging indicators.
 	for (uint8_t i = 0; i < 4; i++) {
 		LATC &= ~(CHG_LED0 << i);
 		__delay_ms(LIGHT_SHOW_DELAY);
 		LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
 	}
-	
+
 	// Chase all the configuration LEDs.
 	for (uint8_t i = 0; i < 11; i++) {
 		ShiftData(0b1000000000000000 >> i);
 		__delay_ms(LIGHT_SHOW_DELAY);
 	}
-	
+
 	// Enable the flashing timer.
 	T6CONbits.TMR6ON = 1;
-	
+
 	// Display the default startup configuration.
 	DisplayCurrentConfiguration();
 }
@@ -87,7 +96,7 @@ void FlashCurrentEditableConfiguration(void) {
 		case SEL_RUNNING:
 			break;
 	}
-	
+
 	// Shift the light data out.
 	ShiftData(configLights);
 }
@@ -103,7 +112,7 @@ void DisplayCurrentConfiguration(void) {
 	configLights += SelectedBatteryLED();
 	configLights += SelectedRateLED();
 	configLights += SelectedModeLED();
-	
+
 	// Shift the light data out.
 	ShiftData(configLights);
 }
@@ -137,7 +146,7 @@ void NextConfigurationSelection(void) {
 	} else {
 		currentSelection = SEL_RUNNING;
 	}
-	
+
 	// Show change on board.
 	DisplayCurrentConfiguration();
 }
@@ -152,7 +161,7 @@ void SelectNextVoltage(void) {
 	} else {
 		selectedBattery = NIMH_72V;
 	}
-	
+
 	// Set the regulator voltage.
 	switch (selectedBattery) {
 		case NIMH_72V:
@@ -168,7 +177,7 @@ void SelectNextVoltage(void) {
 			SetTargetVoltage(12.0f);
 			break;
 	}
-	
+
 	// Show change on board.
 	DisplayCurrentConfiguration();
 }
@@ -183,7 +192,7 @@ void SelectNextRate(void) {
 	} else {
 		selectedRate = RATE_15MA;
 	}
-	
+
 	// Set the regulator current.
 	switch (selectedRate) {
 		case RATE_TRICKLE:
@@ -202,7 +211,7 @@ void SelectNextRate(void) {
 			SetTargetCurrent(0.1f);
 			break;
 	}
-	
+
 	// Show change on board.
 	DisplayCurrentConfiguration();
 }
@@ -217,7 +226,7 @@ void SelectNextMode(void) {
 	} else {
 		selectedMode = MODE_CHARGE;
 	}
-	
+
 	// Show change on board.
 	DisplayCurrentConfiguration();
 }
@@ -240,7 +249,7 @@ inline uint16_t SelectedRateLED(void) {
 	// Ignore the trickle rate.
 	if (selectedRate == RATE_TRICKLE)
 		return 0;
-	
+
 	return 1 << (selectedRate - 3 + 11);
 }
 
@@ -262,7 +271,7 @@ inline uint16_t SelectedModeLED(void) {
 void ShiftData(const uint16_t data) {
 	// Unlatch.
 	LATA &= ~(SR_DATA + SR_CLOCK + SR_LATCH);
-	
+
 	// Go through each bit sending them LSB-first.
 	for (uint8_t i = 0; i < 16; i++) {
 		if (data & (1 << i)) {
@@ -278,11 +287,11 @@ void ShiftData(const uint16_t data) {
 			LATA |= SR_CLOCK;
 			__delay_us(SHIFT_CLOCK_DELAY);
 		}
-		
+
 		// Make sure all lines are LOW.
 		LATA &= ~(SR_DATA + SR_CLOCK);
 	}
-	
+
 	// Release the latch.
 	LATA |= SR_LATCH;
 }
@@ -293,7 +302,7 @@ void ShiftData(const uint16_t data) {
  * @return Selected battery type.
  */
 battery_t GetSelectedBattery(void) {
-    return selectedBattery;
+	return selectedBattery;
 }
 
 /**
@@ -302,5 +311,5 @@ battery_t GetSelectedBattery(void) {
  * @return Is the battery of lithium?
  */
 bool IsLithiumBattery(void) {
-    return selectedBattery == LTION_74V;
+	return selectedBattery == LTION_74V;
 }
