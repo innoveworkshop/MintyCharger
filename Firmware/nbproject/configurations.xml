@@ -7,7 +7,6 @@
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/config.h</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/interface.h</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/pins.h</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/serial.h</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.h</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/gauge.h</itemPath>
     </logicalFolder>
@@ -20,7 +19,6 @@
                    projectFiles="true">
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/interface.c</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/main.c</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/serial.c</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.c</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/gauge.c</itemPath>
     </logicalFolder>
