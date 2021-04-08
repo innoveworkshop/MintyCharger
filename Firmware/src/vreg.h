@@ -28,6 +28,7 @@ bool IsConstantCurrent(void);
 // Charging process.
 void SetFinishedCharging(void);
 void ClearFinishedCharging(void);
+bool IsBatteryDisconnected(void);
 bool IsFinishedCharging(void);
 
 // ADC stuff.
@@ -46,4 +47,3 @@ uint16_t GetMeasuredVoltageValue(void);
 uint16_t GetMeasuredCurrentValue(void);
 
 #endif	/* VREG_H */
-

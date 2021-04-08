@@ -26,6 +26,7 @@
 #define ISENSE_GAIN        11
 #define NIMH_ICUTOFF       25  // ~5mA
 #define LTION_ICUTOFF      55  // ~10mA
+#define BATT_DIS_CURRENT   10  // ~2mA
 
 // Private variables.
 bool enabled           = false;
@@ -144,6 +145,15 @@ void StartNextADCReading(void) {
 			AcquireADC(ADC_CH_VSENSE);
 			return;
 	}
+}
+
+/**
+ * Check if the battery has been disconnected.
+ * 
+ * @return TRUE if the battery has been disconnected.
+ */
+bool IsBatteryDisconnected(void) {
+	return GetMeasuredCurrentValue() < BATT_DIS_CURRENT;
 }
 
 /**
