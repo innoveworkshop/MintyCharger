@@ -148,30 +148,6 @@ void StartNextADCReading(void) {
 }
 
 /**
- * Detects if a battery has been inserted and starts the charging cycle.
- */
-void DetectBatteryInserted(void) {
-	// Check if we even have a battery.
-	if (IsBatteryDisconnected())
-		SetFinishedCharging();
-	
-	// Check if the charge has finished first.
-	if (!IsFinishedCharging())
-		return;
-	
-	// Try to check if there's a battery present.
-	if (IsLithiumBattery()) {
-		// Regulator is OFF. We need to check for a higher voltage than the USB.
-		if (GetBatteryVoltage() > 5.6f)
-			ClearFinishedCharging();
-	} else {
-		// Regulator is ON. Just check if it's taking any charging current.
-		if (GetBatteryCurrent() > NIMH_ICUTOFF)
-			ClearFinishedCharging();
-	}
-}
-
-/**
  * Check if the battery has been disconnected.
  * 
  * @return TRUE if the battery has been disconnected.
