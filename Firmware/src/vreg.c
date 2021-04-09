@@ -19,14 +19,14 @@
 #define PWM_MAX_VALUE      1022
 #define PWM_INC_STEP       1
 #define PWM_DEC_STEP       1
-#define ADC_ACQ_DELAY      10  // us
+#define ADC_ACQ_DELAY      5       // us
 #define VREF_VOLTAGE       2.048f  // V
 #define ADC_RESOLUTION     1023.0f
 #define VSENSE_VDIV        (2.0f / 12.0f)
 #define ISENSE_GAIN        11
 #define NIMH_ICUTOFF       25  // ~5mA
 #define LTION_ICUTOFF      55  // ~10mA
-#define BATT_DIS_CURRENT   10  // ~2mA
+#define BATT_IDISCONNECT   10  // ~2mA
 
 // Private variables.
 bool enabled           = false;
@@ -36,7 +36,7 @@ uint16_t adcCurrent    = 0;
 uint8_t adcLastChannel = 0;
 uint16_t targetVoltage = 0;
 uint16_t targetCurrent = 0;
-bool finishedCharging  = false;
+bool finishedCharging  = true;
 
 /**
  * Enables the voltage regulator.
@@ -148,12 +148,36 @@ void StartNextADCReading(void) {
 }
 
 /**
+ * Detects if a battery has been inserted and starts the charging cycle.
+ */
+void DetectBatteryInserted(void) {
+	// Check if we even have a battery.
+	if (IsBatteryDisconnected())
+		SetFinishedCharging();
+	
+	// Check if the charge has finished first.
+	if (!IsFinishedCharging())
+		return;
+	
+	// Try to check if there's a battery present.
+	if (IsLithiumBattery()) {
+		// Regulator is OFF. We need to check for a higher voltage than the USB.
+		if (GetBatteryVoltage() > 5.6f)
+			ClearFinishedCharging();
+	} else {
+		// Regulator is ON. Just check if it's taking any charging current.
+		if (GetBatteryCurrent() > NIMH_ICUTOFF)
+			ClearFinishedCharging();
+	}
+}
+
+/**
  * Check if the battery has been disconnected.
  * 
  * @return TRUE if the battery has been disconnected.
  */
 bool IsBatteryDisconnected(void) {
-	return GetMeasuredCurrentValue() < BATT_DIS_CURRENT;
+	return GetMeasuredCurrentValue() < BATT_IDISCONNECT;
 }
 
 /**
