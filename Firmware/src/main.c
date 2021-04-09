@@ -112,9 +112,6 @@ void __interrupt() ISR(void) {
 
 	// Editing configuration flash timer (Timer6) interrupt.
 	if (PIR2bits.TMR6IF) {
-	
-	// Detect the battery end of charge.
-	DetectEndOfCharge();
 		// Blinkenlights.
 		FlashCurrentEditableConfiguration();
 		DisplayBatteryGauge();
