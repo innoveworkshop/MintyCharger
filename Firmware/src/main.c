@@ -48,6 +48,11 @@ void main(void) {
 
 	// Main application loop.
 	while (true) {
+		// Detect the battery end of charge.
+		if (!IsFinishedCharging()) {
+			__delay_ms(10);
+			DetectEndOfCharge();
+		}
 	}
 }
 

@@ -29,14 +29,14 @@
 #define BATT_IDISCONNECT   10  // ~2mA
 
 // Private variables.
-bool enabled           = false;
-uint16_t pwmValue      = 0;
-uint16_t adcVoltage    = 0;
-uint16_t adcCurrent    = 0;
-uint8_t adcLastChannel = 0;
-uint16_t targetVoltage = 0;
-uint16_t targetCurrent = 0;
-bool finishedCharging  = true;
+bool enabled            = false;
+uint16_t pwmValue       = 0;
+uint16_t adcVoltage     = 0;
+uint16_t adcCurrent     = 0;
+uint8_t adcLastChannel  = 0;
+uint16_t targetVoltage  = 0;
+uint16_t targetCurrent  = 0;
+bool finishedCharging   = true;
 
 /**
  * Enables the voltage regulator.
@@ -81,16 +81,8 @@ void RegulateBoostOutput(void) {
 			pwmValue = 0;
 		}
 	}
-
-	// Detect the end of charge.
-	if (IsLithiumBattery()) {
-		if (GetBatteryCurrent() < LTION_ICUTOFF)
-			SetFinishedCharging();
-	} else {
-		if (GetBatteryCurrent() < NIMH_ICUTOFF)
-			SetFinishedCharging();
-	}
-
+	
+	// Set the PWM duty cycle.
 	SetPWMDutyCycle(pwmValue);
 }
 
@@ -148,11 +140,29 @@ void StartNextADCReading(void) {
 }
 
 /**
+ * Detects the end of charge of a battery and acts upon it.
+ */
+void DetectEndOfCharge(void) {
+	// Detect the end of charge.
+	if (IsLithiumBattery()) {
+		if (GetMeasuredCurrentValue() < LTION_ICUTOFF)
+			SetFinishedCharging();
+	} else {
+		if (GetMeasuredCurrentValue() < NIMH_ICUTOFF)
+			SetFinishedCharging();
+	}
+}
+
+/**
  * Check if the battery has been disconnected.
  * 
  * @return TRUE if the battery has been disconnected.
  */
 bool IsBatteryDisconnected(void) {
+	// Check if there's >5.6V voltage present in case of a lithium battery.
+	if (IsLithiumBattery() && (GetMeasuredVoltageValue() > 466))
+		return false;
+	
 	return GetMeasuredCurrentValue() < BATT_IDISCONNECT;
 }
 
@@ -190,8 +200,8 @@ void SetTargetCurrent(const float current) {
 void SetFinishedCharging(void) {
 	finishedCharging = true;
 
-	// Completely stop charging if it is a lithium battery.
-	if (IsLithiumBattery())
+	// Completely stop charging if it is a lithium or disconnected battery.
+	if (IsLithiumBattery() || IsBatteryDisconnected())
 		DisableRegulator();
 }
 

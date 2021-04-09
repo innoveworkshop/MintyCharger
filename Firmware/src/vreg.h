@@ -30,6 +30,7 @@ void SetFinishedCharging(void);
 void ClearFinishedCharging(void);
 bool IsBatteryDisconnected(void);
 bool IsFinishedCharging(void);
+void DetectEndOfCharge(void);
 
 // ADC stuff.
 void AcquireADC(const uint8_t channel);
