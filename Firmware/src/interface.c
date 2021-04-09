@@ -19,7 +19,6 @@
 #define LIGHT_SHOW_DELAY  20 // ms
 
 // Private enumerators.
-
 typedef enum {
 	RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA, RATE_TRICKLE
 } rate_t;
@@ -33,11 +32,11 @@ typedef enum {
 } selection_t;
 
 // Private variables.
-battery_t selectedBattery = NIMH_72V;
-rate_t selectedRate = RATE_15MA;
-mode_t selectedMode = MODE_CHARGE;
+battery_t selectedBattery    = NIMH_72V;
+rate_t selectedRate          = RATE_15MA;
+mode_t selectedMode          = MODE_CHARGE;
 selection_t currentSelection = SEL_RUNNING;
-uint16_t configLights = 0;
+uint16_t configLights        = 0;
 
 // Private methods.
 void ShiftData(const uint16_t data);
@@ -75,6 +74,20 @@ void InitializeUI(void) {
 
 	// Display the default startup configuration.
 	DisplayCurrentConfiguration();
+}
+
+/**
+ * Handle a single click of the selection button.
+ */
+void HandleSingleButtonClick(void) {
+	// Check if we are in running more or editing configurations.
+	if (currentSelection == SEL_RUNNING) {
+		// Enable the charger.
+		ClearFinishedCharging();
+	} else {
+		// Select the next option of the current selection.
+		SelectNextOption();
+	}
 }
 
 /**
@@ -132,6 +145,7 @@ void SelectNextOption(void) {
 			SelectNextRate();
 			break;
 		case SEL_RUNNING:
+			// Do nothing.
 			break;
 	}
 }

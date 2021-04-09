@@ -18,6 +18,9 @@ void SelectNextOption(void);
 void NextConfigurationSelection(void);
 void FlashCurrentEditableConfiguration(void);
 
+// User interaction.
+void HandleSingleButtonClick(void);
+
 // Initialization.
 void InitializeUI(void);
 

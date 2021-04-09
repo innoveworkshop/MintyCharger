@@ -44,8 +44,7 @@ void main(void) {
 	StartNextADCReading();
 	InitializeUI();
 	SetTargetVoltage(10.2f);
-	SetTargetCurrent(0.1f);
-	EnableRegulator();
+	SetTargetCurrent(0.05f);
 
 	// Main application loop.
 	while (true) {
@@ -82,8 +81,7 @@ void __interrupt() ISR(void) {
 		} else {
 			// Check if the timer is running. Detect if it was a single click.
 			if (T1CONbits.TMR1ON) {
-				// Select the next option of the current selection.
-				SelectNextOption();
+				HandleSingleButtonClick();
 			}
 
 			// Disable the timer.
@@ -109,6 +107,9 @@ void __interrupt() ISR(void) {
 
 	// Editing configuration flash timer (Timer6) interrupt.
 	if (PIR2bits.TMR6IF) {
+	
+	// Detect the battery end of charge.
+	DetectEndOfCharge();
 		// Blinkenlights.
 		FlashCurrentEditableConfiguration();
 		DisplayBatteryGauge();
