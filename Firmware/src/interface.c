@@ -56,6 +56,12 @@ void InitializeUI(void) {
 	// Turn all the lights off for the show.
 	LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
 	ShiftData(0);
+	
+	// Chase all the configuration LEDs.
+	for (uint8_t i = 0; i < 11; i++) {
+		ShiftData(1 << i);
+		__delay_ms(LIGHT_SHOW_DELAY);
+	}
 
 	// Chase the charging indicators.
 	for (uint8_t i = 0; i < 4; i++) {
@@ -63,16 +69,7 @@ void InitializeUI(void) {
 		__delay_ms(LIGHT_SHOW_DELAY);
 		LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
 	}
-
-	// Chase all the configuration LEDs.
-	for (uint8_t i = 0; i < 11; i++) {
-		ShiftData(0b1000000000000000 >> i);
-		__delay_ms(LIGHT_SHOW_DELAY);
-	}
-
-	// Enable the flashing timer.
-	T6CONbits.TMR6ON = 1;
-
+	
 	// Commit and display the default startup configuration.
 	CommitConfiguration(false);
 	DisplayCurrentConfiguration();
@@ -186,13 +183,8 @@ void FlashCurrentEditableConfiguration(void) {
  * Light up the correct LEDs depending on what's currently configured.
  */
 void DisplayCurrentConfiguration(void) {
-	// Reset the lights.
-	configLights = 0;
-
 	// Configure each light that should light up.
-	configLights += SelectedBatteryLED();
-	configLights += SelectedRateLED();
-	configLights += SelectedModeLED();
+	configLights = SelectedBatteryLED() | SelectedRateLED() | SelectedModeLED();
 
 	// Shift the light data out.
 	ShiftData(configLights);
@@ -285,7 +277,7 @@ void SelectNextMode(void) {
  * @return Selected battery configuration LED position.
  */
 inline uint16_t SelectedBatteryLED(void) {
-	return 1 << (selectedBattery - 3 + 15);
+	return 1 << selectedBattery;
 }
 
 /**
@@ -298,7 +290,7 @@ inline uint16_t SelectedRateLED(void) {
 	if (selectedRate == RATE_TRICKLE)
 		return 0;
 
-	return 1 << (selectedRate - 3 + 11);
+	return 1 << (selectedRate + 4);
 }
 
 /**
@@ -307,12 +299,13 @@ inline uint16_t SelectedRateLED(void) {
  * @return Selected mode configuration LED position.
  */
 inline uint16_t SelectedModeLED(void) {
-	return 1 << (selectedMode - 2 + 7);
+	return 1 << (selectedMode + 8);
 }
 
 /**
  * Sends a 16-bit value to the dual shift registers we have dealing with most of
- * the lights.
+ * the lights. Keep in mind that the LEDs are LSB first, so bit 0 corresponds to
+ * the first LED.
  * 
  * @param data 16-bit data to be sent to the shift register.
  */
@@ -320,8 +313,8 @@ void ShiftData(const uint16_t data) {
 	// Unlatch.
 	LATA &= ~(SR_DATA + SR_CLOCK + SR_LATCH);
 
-	// Go through each bit sending them LSB-first.
-	for (uint8_t i = 0; i < 16; i++) {
+	// Go through each bit sending them MSB-first.
+	for (int8_t i = 15; i >= 0; i--) {
 		if (data & (1 << i)) {
 			// 1
 			LATA |= SR_DATA;

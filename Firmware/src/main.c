@@ -44,6 +44,9 @@ void main(void) {
 	StartNextADCReading();
 	InitializeUI();
 
+	// Enable the flashing timer.
+	T6CONbits.TMR6ON = 1;
+
 	// Main application loop.
 	while (true) {
 		// Detect the battery end of charge.
