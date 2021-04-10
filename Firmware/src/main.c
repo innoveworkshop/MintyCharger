@@ -43,8 +43,6 @@ void main(void) {
 	DisableRegulator();
 	StartNextADCReading();
 	InitializeUI();
-	SetTargetVoltage(10.2f);
-	SetTargetCurrent(0.05f);
 
 	// Main application loop.
 	while (true) {

@@ -44,6 +44,7 @@ inline uint16_t __attribute__((always_inline)) SelectedBatteryLED(void);
 inline uint16_t __attribute__((always_inline)) SelectedRateLED(void);
 inline uint16_t __attribute__((always_inline)) SelectedModeLED(void);
 void DisplayCurrentConfiguration(void);
+void CommitConfiguration(const bool save);
 void SelectNextVoltage(void);
 void SelectNextRate(void);
 void SelectNextMode(void);
@@ -72,8 +73,67 @@ void InitializeUI(void) {
 	// Enable the flashing timer.
 	T6CONbits.TMR6ON = 1;
 
-	// Display the default startup configuration.
+	// Commit and display the default startup configuration.
+	CommitConfiguration(false);
 	DisplayCurrentConfiguration();
+}
+
+/**
+ * Commits the current configuration to the voltage regulator.
+ * 
+ * @param save Save the configuration to the EEPROM?
+ */
+void CommitConfiguration(const bool save) {
+	// Disable everything for safety.
+	ClearFinishedCharging();
+	DisableRegulator();
+	
+	// Set current.
+	float current = 0;
+	switch (selectedRate) {
+		case RATE_15MA:
+			current = 0.015f;
+			break;
+		case RATE_50MA:
+			current = 0.5f;
+			break;
+		case RATE_75MA:
+			current = 0.75f;
+			break;
+		case RATE_100MA:
+			current = 0.1;
+			break;
+	}
+	SetTargetCurrent(current);
+	
+	// Set voltage.
+	float voltage = 0;
+	switch (selectedBattery) {
+		case NIMH_72V:
+			voltage = 8.8f;
+			break;
+		case LTION_74V:
+			voltage = 8.2f;
+			break;
+		case NIMH_84V:
+			voltage = 10.3f;
+			break;
+		case NIMH_96V:
+			voltage = 11.8f;
+			break;
+	}
+	SetTargetVoltage(voltage);
+	
+	// Decide what to do.
+	switch (selectedMode) {
+		case MODE_CHARGE:
+			//EnableRegulator();
+			break;
+		case MODE_DISCHARGE:
+			break;
+		case MODE_REFRESH:
+			break;
+	}
 }
 
 /**
@@ -95,6 +155,10 @@ void HandleSingleButtonClick(void) {
  * its corresponding LED.
  */
 void FlashCurrentEditableConfiguration(void) {
+	// If we are editing the configurations, make sure the regulator is disabled.
+	if (currentSelection != SEL_RUNNING)
+		DisableRegulator();
+	
 	// Toggle the current selection light.
 	switch (currentSelection) {
 		case SEL_BATTERY:
@@ -161,7 +225,8 @@ void NextConfigurationSelection(void) {
 		currentSelection = SEL_RUNNING;
 	}
 
-	// Show change on board.
+	// Commit configuration and show change on board.
+	CommitConfiguration(true);
 	DisplayCurrentConfiguration();
 }
 
