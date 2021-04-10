@@ -392,3 +392,12 @@ battery_t GetSelectedBattery(void) {
 bool IsLithiumBattery(void) {
 	return selectedBattery == LTION_74V;
 }
+
+/**
+ * Checks if the user is currently selecting a configuration.
+ * 
+ * @return Is the user selecting a configuration?
+ */
+bool IsSelectingConfiguration(void) {
+	return currentSelection != SEL_RUNNING;
+}

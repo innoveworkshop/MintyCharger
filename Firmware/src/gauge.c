@@ -28,7 +28,7 @@ void DisplayBatteryGauge(void) {
 	uint8_t gauge = 0b0000;
 	
 	// Only show the gauge if the battery is actually connected.
-	if (!IsBatteryDisconnected()) {
+	if (!IsBatteryDisconnected() && !IsSelectingConfiguration()) {
 		float voltage = GetCellVoltage();
 
 		if (IsLithiumBattery()) {

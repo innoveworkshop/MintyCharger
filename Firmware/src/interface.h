@@ -27,5 +27,6 @@ void InitializeUI(void);
 // Getting configurations.
 battery_t GetSelectedBattery(void);
 bool IsLithiumBattery(void);
+bool IsSelectingConfiguration(void);
 
 #endif	/* INTERFACE_H */
