@@ -91,14 +91,17 @@ void CommitConfiguration(const bool save) {
 	// Set current.
 	float current = 0;
 	switch (selectedRate) {
+		case RATE_TRICKLE:
+			current = 0.0076f;
+			break;
 		case RATE_15MA:
 			current = 0.015f;
 			break;
 		case RATE_50MA:
-			current = 0.5f;
+			current = 0.05f;
 			break;
 		case RATE_75MA:
-			current = 0.75f;
+			current = 0.075f;
 			break;
 		case RATE_100MA:
 			current = 0.1;
@@ -171,6 +174,7 @@ void FlashCurrentEditableConfiguration(void) {
 			configLights ^= SelectedRateLED();
 			break;
 		case SEL_RUNNING:
+			// Do nothing.
 			break;
 	}
 
@@ -241,22 +245,6 @@ void SelectNextVoltage(void) {
 		selectedBattery = NIMH_72V;
 	}
 
-	// Set the regulator voltage.
-	switch (selectedBattery) {
-		case NIMH_72V:
-			SetTargetVoltage(9.0f);
-			break;
-		case LTION_74V:
-			SetTargetVoltage(8.4f);
-			break;
-		case NIMH_84V:
-			SetTargetVoltage(10.5f);
-			break;
-		case NIMH_96V:
-			SetTargetVoltage(12.0f);
-			break;
-	}
-
 	// Show change on board.
 	DisplayCurrentConfiguration();
 }
@@ -270,25 +258,6 @@ void SelectNextRate(void) {
 		selectedRate++;
 	} else {
 		selectedRate = RATE_15MA;
-	}
-
-	// Set the regulator current.
-	switch (selectedRate) {
-		case RATE_TRICKLE:
-			SetTargetCurrent(0.0076f);
-			break;
-		case RATE_15MA:
-			SetTargetCurrent(0.015f);
-			break;
-		case RATE_50MA:
-			SetTargetCurrent(0.05f);
-			break;
-		case RATE_75MA:
-			SetTargetCurrent(0.075f);
-			break;
-		case RATE_100MA:
-			SetTargetCurrent(0.1f);
-			break;
 	}
 
 	// Show change on board.
