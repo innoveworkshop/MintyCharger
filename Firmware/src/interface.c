@@ -137,7 +137,8 @@ void CommitConfiguration(const bool save_settings) {
 	// Decide what to do.
 	switch (selectedMode) {
 		case MODE_CHARGE:
-			//EnableRegulator();
+    		// Start charging.
+            ClearFinishedCharging();
 			break;
 		case MODE_DISCHARGE:
 			break;
