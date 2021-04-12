@@ -197,8 +197,9 @@ void InitializePWM(void) {
 	// Wait for Timer2 to be ready.
 	while (TMR2IF == 0);
 
-	// Enable the PWM.
+	// Enable the PWM and unlock the slew rate for the pin.
 	PWM5CONbits.PWM5EN = 1;
+	SLRCONAbits.SLRA5 = 0;
 }
 
 /**
