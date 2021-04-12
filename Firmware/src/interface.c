@@ -38,7 +38,7 @@ inline uint16_t __attribute__((always_inline)) SelectedRateLED(void);
 inline uint16_t __attribute__((always_inline)) SelectedModeLED(void);
 void LoadSettings(void);
 void DisplayCurrentConfiguration(void);
-void CommitConfiguration(const bool save);
+void CommitConfiguration(const bool save_settings);
 void SelectNextVoltage(void);
 void SelectNextRate(void);
 void SelectNextMode(void);
@@ -84,9 +84,9 @@ void LoadSettings(void) {
 /**
  * Commits the current configuration to the voltage regulator.
  * 
- * @param save Save the configuration to the EEPROM?
+ * @param save_settings Save the configuration to the EEPROM?
  */
-void CommitConfiguration(const bool save) {
+void CommitConfiguration(const bool save_settings) {
 	// Disable everything for safety.
 	ClearFinishedCharging();
 	DisableRegulator();
@@ -111,6 +111,8 @@ void CommitConfiguration(const bool save) {
 			break;
 	}
 	SetTargetCurrent(current);
+    if (save_settings)
+        SaveChargeRateSetting(selectedRate);
 	
 	// Set voltage.
 	float voltage = 0;
@@ -129,6 +131,8 @@ void CommitConfiguration(const bool save) {
 			break;
 	}
 	SetTargetVoltage(voltage);
+    if (save_settings)
+        SaveBatteryTypeSetting(selectedBattery);
 	
 	// Decide what to do.
 	switch (selectedMode) {
@@ -140,6 +144,8 @@ void CommitConfiguration(const bool save) {
 		case MODE_REFRESH:
 			break;
 	}
+    if (save_settings)
+        SaveChargerModeSetting(selectedMode);
 }
 
 /**
