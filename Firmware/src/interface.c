@@ -20,6 +20,7 @@
 #define LIGHT_SHOW_DELAY  20 // ms
 
 // Private enumerators.
+
 typedef enum {
 	SEL_RUNNING, SEL_BATTERY, SEL_MODE, SEL_RATE
 } selection_t;
@@ -50,7 +51,7 @@ void InitializeUI(void) {
 	// Turn all the lights off for the show.
 	LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
 	ShiftData(0);
-	
+
 	// Chase all the configuration LEDs.
 	for (uint8_t i = 0; i < 11; i++) {
 		ShiftData(1 << i);
@@ -63,10 +64,10 @@ void InitializeUI(void) {
 		__delay_ms(LIGHT_SHOW_DELAY);
 		LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
 	}
-    
-    // Load settings from the EEPROM.
-    LoadSettings();
-	
+
+	// Load settings from the EEPROM.
+	LoadSettings();
+
 	// Commit and display the default startup configuration.
 	CommitConfiguration(false);
 	DisplayCurrentConfiguration();
@@ -76,9 +77,9 @@ void InitializeUI(void) {
  * Load settings from the EEPROM.
  */
 void LoadSettings(void) {
-    selectedMode = GetChargerModeSetting();
-    selectedBattery = GetBatteryTypeSetting();
-    selectedRate = GetChargeRateSetting();
+	selectedMode = GetChargerModeSetting();
+	selectedBattery = GetBatteryTypeSetting();
+	selectedRate = GetChargeRateSetting();
 }
 
 /**
@@ -90,7 +91,7 @@ void CommitConfiguration(const bool save_settings) {
 	// Disable everything for safety.
 	ClearFinishedCharging();
 	DisableRegulator();
-	
+
 	// Set current.
 	float current = 0;
 	switch (selectedRate) {
@@ -111,9 +112,9 @@ void CommitConfiguration(const bool save_settings) {
 			break;
 	}
 	SetTargetCurrent(current);
-    if (save_settings)
-        SaveChargeRateSetting(selectedRate);
-	
+	if (save_settings)
+		SaveChargeRateSetting(selectedRate);
+
 	// Set voltage.
 	float voltage = 0;
 	switch (selectedBattery) {
@@ -131,22 +132,22 @@ void CommitConfiguration(const bool save_settings) {
 			break;
 	}
 	SetTargetVoltage(voltage);
-    if (save_settings)
-        SaveBatteryTypeSetting(selectedBattery);
-	
+	if (save_settings)
+		SaveBatteryTypeSetting(selectedBattery);
+
 	// Decide what to do.
 	switch (selectedMode) {
 		case MODE_CHARGE:
-    		// Start charging.
-            ClearFinishedCharging();
+			// Start charging.
+			ClearFinishedCharging();
 			break;
 		case MODE_DISCHARGE:
 			break;
 		case MODE_REFRESH:
 			break;
 	}
-    if (save_settings)
-        SaveChargerModeSetting(selectedMode);
+	if (save_settings)
+		SaveChargerModeSetting(selectedMode);
 }
 
 /**
@@ -171,7 +172,7 @@ void FlashCurrentEditableConfiguration(void) {
 	// If we are editing the configurations, make sure the regulator is disabled.
 	if (currentSelection != SEL_RUNNING)
 		DisableRegulator();
-	
+
 	// Toggle the current selection light.
 	switch (currentSelection) {
 		case SEL_BATTERY:

@@ -29,14 +29,14 @@
 #define BATT_IDISCONNECT   10  // ~2mA
 
 // Private variables.
-bool enabled            = false;
-uint16_t pwmValue       = 0;
-uint16_t adcVoltage     = 0;
-uint16_t adcCurrent     = 0;
-uint8_t adcLastChannel  = 0;
-uint16_t targetVoltage  = 0;
-uint16_t targetCurrent  = 0;
-bool finishedCharging   = true;
+bool enabled = false;
+uint16_t pwmValue = 0;
+uint16_t adcVoltage = 0;
+uint16_t adcCurrent = 0;
+uint8_t adcLastChannel = 0;
+uint16_t targetVoltage = 0;
+uint16_t targetCurrent = 0;
+bool finishedCharging = true;
 
 /**
  * Enables the voltage regulator.
@@ -81,7 +81,7 @@ void RegulateBoostOutput(void) {
 			pwmValue = 0;
 		}
 	}
-	
+
 	// Set the PWM duty cycle.
 	SetPWMDutyCycle(pwmValue);
 }
@@ -162,7 +162,7 @@ bool IsBatteryDisconnected(void) {
 	// Check if there's >5.6V voltage present in case of a lithium battery.
 	if (IsLithiumBattery() && (GetMeasuredVoltageValue() > 466))
 		return false;
-	
+
 	return GetMeasuredCurrentValue() < BATT_IDISCONNECT;
 }
 
