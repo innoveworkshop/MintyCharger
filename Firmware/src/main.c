@@ -11,6 +11,7 @@
 #include <pic16f18325.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "eeprom.h"
 #include "pins.h"
 #include "vreg.h"
 #include "interface.h"

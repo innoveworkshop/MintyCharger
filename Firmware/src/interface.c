@@ -13,20 +13,13 @@
 #include <stdint.h>
 #include "pins.h"
 #include "vreg.h"
+#include "eeprom.h"
 
 // Private definitions.
 #define SHIFT_CLOCK_DELAY 10 // us
 #define LIGHT_SHOW_DELAY  20 // ms
 
 // Private enumerators.
-typedef enum {
-	RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA, RATE_TRICKLE
-} rate_t;
-
-typedef enum {
-	MODE_CHARGE, MODE_DISCHARGE, MODE_REFRESH
-} mode_t;
-
 typedef enum {
 	SEL_RUNNING, SEL_BATTERY, SEL_MODE, SEL_RATE
 } selection_t;
@@ -43,6 +36,7 @@ void ShiftData(const uint16_t data);
 inline uint16_t __attribute__((always_inline)) SelectedBatteryLED(void);
 inline uint16_t __attribute__((always_inline)) SelectedRateLED(void);
 inline uint16_t __attribute__((always_inline)) SelectedModeLED(void);
+void LoadSettings(void);
 void DisplayCurrentConfiguration(void);
 void CommitConfiguration(const bool save);
 void SelectNextVoltage(void);
@@ -69,10 +63,22 @@ void InitializeUI(void) {
 		__delay_ms(LIGHT_SHOW_DELAY);
 		LATC |= CHG_LED0 + CHG_LED1 + CHG_LED2 + CHG_LED3;
 	}
+    
+    // Load settings from the EEPROM.
+    LoadSettings();
 	
 	// Commit and display the default startup configuration.
 	CommitConfiguration(false);
 	DisplayCurrentConfiguration();
+}
+
+/**
+ * Load settings from the EEPROM.
+ */
+void LoadSettings(void) {
+    selectedMode = GetChargerModeSetting();
+    selectedBattery = GetBatteryTypeSetting();
+    selectedRate = GetChargeRateSetting();
 }
 
 /**

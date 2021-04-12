@@ -12,6 +12,12 @@
 
 // Public enumarators.
 typedef enum { NIMH_72V, LTION_74V, NIMH_84V, NIMH_96V } battery_t;
+typedef enum {
+	RATE_15MA, RATE_50MA, RATE_75MA, RATE_100MA, RATE_TRICKLE
+} rate_t;
+typedef enum {
+	MODE_CHARGE, MODE_DISCHARGE, MODE_REFRESH
+} mode_t;
 
 // Selecting configurations.
 void SelectNextOption(void);
