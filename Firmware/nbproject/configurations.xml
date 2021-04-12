@@ -9,6 +9,7 @@
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/pins.h</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.h</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/gauge.h</itemPath>
+      <itemPath>src/eeprom.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -21,6 +22,7 @@
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/main.c</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.c</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/gauge.c</itemPath>
+      <itemPath>src/eeprom.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
