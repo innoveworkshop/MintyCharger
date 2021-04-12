@@ -36,8 +36,10 @@ void HandleSingleButtonClick(void);
 void InitializeUI(void);
 
 // Getting configurations.
-battery_t GetSelectedBattery(void);
-bool IsLithiumBattery(void);
-bool IsSelectingConfiguration(void);
+extern inline mode_t __attribute__((always_inline)) GetSelectedMode(void);
+extern inline battery_t __attribute__((always_inline)) GetSelectedBattery(void);
+extern inline rate_t __attribute__((always_inline)) GetSelectedCurrent(void);
+extern inline bool __attribute__((always_inline)) IsLithiumBattery(void);
+extern inline bool __attribute__((always_inline)) IsSelectingConfiguration(void);
 
 #endif	/* INTERFACE_H */

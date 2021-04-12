@@ -94,7 +94,7 @@ void CommitConfiguration(const bool save_settings) {
 
 	// Set current.
 	float current = 0;
-	switch (selectedRate) {
+	switch (GetSelectedCurrent()) {
 		case RATE_TRICKLE:
 			current = 0.0076f;
 			break;
@@ -113,11 +113,11 @@ void CommitConfiguration(const bool save_settings) {
 	}
 	SetTargetCurrent(current);
 	if (save_settings)
-		SaveChargeRateSetting(selectedRate);
+		SaveChargeRateSetting(GetSelectedCurrent());
 
 	// Set voltage.
 	float voltage = 0;
-	switch (selectedBattery) {
+	switch (GetSelectedBattery()) {
 		case NIMH_72V:
 			voltage = 8.8f;
 			break;
@@ -133,10 +133,10 @@ void CommitConfiguration(const bool save_settings) {
 	}
 	SetTargetVoltage(voltage);
 	if (save_settings)
-		SaveBatteryTypeSetting(selectedBattery);
+		SaveBatteryTypeSetting(GetSelectedBattery());
 
 	// Decide what to do.
-	switch (selectedMode) {
+	switch (GetSelectedMode()) {
 		case MODE_CHARGE:
 			// Start charging.
 			ClearFinishedCharging();
@@ -147,7 +147,7 @@ void CommitConfiguration(const bool save_settings) {
 			break;
 	}
 	if (save_settings)
-		SaveChargerModeSetting(selectedMode);
+		SaveChargerModeSetting(GetSelectedMode());
 }
 
 /**
@@ -245,7 +245,7 @@ void NextConfigurationSelection(void) {
  */
 void SelectNextVoltage(void) {
 	// Change configuration.
-	if (selectedBattery < NIMH_96V) {
+	if (GetSelectedBattery() < NIMH_96V) {
 		selectedBattery++;
 	} else {
 		selectedBattery = NIMH_72V;
@@ -260,7 +260,7 @@ void SelectNextVoltage(void) {
  */
 void SelectNextRate(void) {
 	// Change configuration.
-	if (selectedRate < RATE_100MA) {
+	if (GetSelectedCurrent() < RATE_100MA) {
 		selectedRate++;
 	} else {
 		selectedRate = RATE_15MA;
@@ -275,7 +275,7 @@ void SelectNextRate(void) {
  */
 void SelectNextMode(void) {
 	// Change configuration.
-	if (selectedMode < MODE_REFRESH) {
+	if (GetSelectedMode() < MODE_REFRESH) {
 		selectedMode++;
 	} else {
 		selectedMode = MODE_CHARGE;
@@ -291,7 +291,7 @@ void SelectNextMode(void) {
  * @return Selected battery configuration LED position.
  */
 inline uint16_t SelectedBatteryLED(void) {
-	return 1 << selectedBattery;
+	return 1 << GetSelectedBattery();
 }
 
 /**
@@ -301,10 +301,10 @@ inline uint16_t SelectedBatteryLED(void) {
  */
 inline uint16_t SelectedRateLED(void) {
 	// Ignore the trickle rate.
-	if (selectedRate == RATE_TRICKLE)
+	if (GetSelectedCurrent() == RATE_TRICKLE)
 		return 0;
 
-	return 1 << (selectedRate + 4);
+	return 1 << (GetSelectedCurrent() + 4);
 }
 
 /**
@@ -313,7 +313,7 @@ inline uint16_t SelectedRateLED(void) {
  * @return Selected mode configuration LED position.
  */
 inline uint16_t SelectedModeLED(void) {
-	return 1 << (selectedMode + 8);
+	return 1 << (GetSelectedMode() + 8);
 }
 
 /**
@@ -356,8 +356,26 @@ void ShiftData(const uint16_t data) {
  * 
  * @return Selected battery type.
  */
-battery_t GetSelectedBattery(void) {
+inline battery_t GetSelectedBattery(void) {
 	return selectedBattery;
+}
+
+/**
+ * Gets the currently selected current for charging and discharging.
+ * 
+ * @return Selected current for charging and discharging.
+ */
+inline rate_t GetSelectedCurrent(void) {
+	return selectedRate;
+}
+
+/**
+ * Gets the currently selected charger mode.
+ * 
+ * @return  Selected mode of operation.
+ */
+inline mode_t GetSelectedMode(void) {
+	return selectedMode;
 }
 
 /**

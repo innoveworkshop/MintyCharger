@@ -93,7 +93,7 @@ void RegulateBoostOutput(void) {
  * 
  * @param channel ADC channel to be sampled.
  */
-void AcquireADC(const uint8_t channel) {
+inline void AcquireADC(const uint8_t channel) {
 	// Switch to Vss first to make sure we can accurately read a smaller voltage.
 	ADCON0bits.CHS = 0b111100;
 	__delay_us(1); // Let the hold capacitor discharge.
@@ -112,7 +112,7 @@ void AcquireADC(const uint8_t channel) {
  * 
  * @param adcSample The ADC sample to be stored.
  */
-void StoreADCValue(const uint16_t adcSample) {
+inline void StoreADCValue(const uint16_t adcSample) {
 	// Store the sample according to the last sampled channel.
 	switch (adcLastChannel) {
 		case ADC_CH_VSENSE:
@@ -127,7 +127,7 @@ void StoreADCValue(const uint16_t adcSample) {
 /**
  * Starts the acquisition cycle for the next ADC channel.
  */
-void StartNextADCReading(void) {
+inline void StartNextADCReading(void) {
 	switch (adcLastChannel) {
 		case ADC_CH_VSENSE:
 			AcquireADC(ADC_CH_ISENSE);
@@ -158,7 +158,7 @@ void DetectEndOfCharge(void) {
  * 
  * @return TRUE if the battery has been disconnected.
  */
-bool IsBatteryDisconnected(void) {
+inline bool IsBatteryDisconnected(void) {
 	// Check if there's >5.6V voltage present in case of a lithium battery.
 	if (IsLithiumBattery() && (GetMeasuredVoltageValue() > 466))
 		return false;
@@ -171,7 +171,7 @@ bool IsBatteryDisconnected(void) {
  * 
  * @param pwmDutyCycle 10-bit value that represents the duty cycle.
  */
-void SetPWMDutyCycle(const uint16_t pwmDutyCycle) {
+inline void SetPWMDutyCycle(const uint16_t pwmDutyCycle) {
 	PWM5DCL = (uint8_t) (pwmDutyCycle << 6);
 	PWM5DCH = pwmDutyCycle >> 2;
 }
@@ -218,7 +218,7 @@ void ClearFinishedCharging(void) {
  * 
  * @return Target voltage ADC value.
  */
-uint16_t GetTargetVoltageValue(void) {
+inline uint16_t GetTargetVoltageValue(void) {
 	return targetVoltage;
 }
 
@@ -227,7 +227,7 @@ uint16_t GetTargetVoltageValue(void) {
  * 
  * @return Target current ADC value.
  */
-uint16_t GetTargetCurrentValue(void) {
+inline uint16_t GetTargetCurrentValue(void) {
 	return targetCurrent;
 }
 
@@ -236,7 +236,7 @@ uint16_t GetTargetCurrentValue(void) {
  * 
  * @return Measured voltage ADC value.
  */
-uint16_t GetMeasuredVoltageValue(void) {
+inline uint16_t GetMeasuredVoltageValue(void) {
 	return adcVoltage;
 }
 
@@ -245,7 +245,7 @@ uint16_t GetMeasuredVoltageValue(void) {
  * 
  * @return Measured current ADC value.
  */
-uint16_t GetMeasuredCurrentValue(void) {
+inline uint16_t GetMeasuredCurrentValue(void) {
 	return adcCurrent;
 }
 
@@ -307,7 +307,7 @@ float GetCellVoltage(void) {
  * 
  * @return Is in constant current mode?
  */
-bool IsConstantCurrent(void) {
+inline bool IsConstantCurrent(void) {
 	return GetMeasuredCurrentValue() < GetTargetCurrentValue();
 }
 
@@ -316,6 +316,6 @@ bool IsConstantCurrent(void) {
  * 
  * @return Have we finished charging?
  */
-bool IsFinishedCharging(void) {
+inline bool IsFinishedCharging(void) {
 	return finishedCharging;
 }

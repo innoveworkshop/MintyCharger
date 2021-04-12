@@ -19,7 +19,7 @@
 uint8_t blinkState = 0;
 
 // Private methods.
-void BlinkChargingState(uint8_t *gauge);
+inline void __attribute__((always_inline)) BlinkChargingState(uint8_t *gauge);
 
 /**
  * Updates the gauge display.
@@ -76,7 +76,7 @@ void DisplayBatteryGauge(void) {
  * 
  * @param gauge Pointer to the gauge LEDs variable (RC0 referenced).
  */
-void BlinkChargingState(uint8_t *gauge) {
+inline void BlinkChargingState(uint8_t *gauge) {
 	// Determine which bit to flip, making sure we are only getting the first 4 bits
 	switch (*gauge & 0b1111) {
 		case 0b0000:

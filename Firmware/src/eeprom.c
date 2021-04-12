@@ -31,7 +31,7 @@ __EEPROM_DATA(0x00, 0x01, 0x02, 0, 0, 0, 0, 0);
  * 
  * @return Charger mode configuration.
  */
-mode_t GetChargerModeSetting(void) {
+inline mode_t GetChargerModeSetting(void) {
 	return (mode_t) eeprom_read(EEPROM_CHARGE_MODE);
 }
 
@@ -40,7 +40,7 @@ mode_t GetChargerModeSetting(void) {
  * 
  * @param mode Charger mode.
  */
-void SaveChargerModeSetting(const mode_t mode) {
+inline void SaveChargerModeSetting(const mode_t mode) {
 	eeprom_write(EEPROM_CHARGE_MODE, (uint8_t) mode);
 }
 
@@ -49,7 +49,7 @@ void SaveChargerModeSetting(const mode_t mode) {
  * 
  * @return Charge rate configuration.
  */
-rate_t GetChargeRateSetting(void) {
+inline rate_t GetChargeRateSetting(void) {
 	return (rate_t) eeprom_read(EEPROM_CHARGE_RATE);
 }
 
@@ -58,7 +58,7 @@ rate_t GetChargeRateSetting(void) {
  * 
  * @param rate Charge rate.
  */
-void SaveChargeRateSetting(const rate_t rate) {
+inline void SaveChargeRateSetting(const rate_t rate) {
 	eeprom_write(EEPROM_CHARGE_RATE, (uint8_t) rate);
 }
 
@@ -67,7 +67,7 @@ void SaveChargeRateSetting(const rate_t rate) {
  * 
  * @return Battery type configuration.
  */
-battery_t GetBatteryTypeSetting(void) {
+inline battery_t GetBatteryTypeSetting(void) {
 	return (battery_t) eeprom_read(EEPROM_BATT_TYPE);
 }
 
@@ -76,6 +76,6 @@ battery_t GetBatteryTypeSetting(void) {
  * 
  * @param type Battery type.
  */
-void SaveBatteryTypeSetting(const battery_t type) {
+inline void SaveBatteryTypeSetting(const battery_t type) {
 	eeprom_write(EEPROM_BATT_TYPE, (uint8_t) type);
 }
