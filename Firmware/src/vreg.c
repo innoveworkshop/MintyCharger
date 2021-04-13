@@ -17,17 +17,18 @@
 #include "load.h"
 
 // Some definitions.
-#define PWM_MAX_VALUE      1022
-#define PWM_INC_STEP       1
-#define PWM_DEC_STEP       1
-#define ADC_ACQ_DELAY      5       // us
-#define VREF_VOLTAGE       2.048f  // V
-#define ADC_RESOLUTION     1023.0f
-#define VSENSE_VDIV        (2.0f / 12.0f)
-#define ISENSE_GAIN        11
-#define NIMH_ICUTOFF       25  // ~5mA
-#define LTION_ICUTOFF      55  // ~10mA
-#define BATT_IDISCONNECT   10  // ~2mA
+#define PWM_MAX_VALUE       1022
+#define PWM_INC_STEP        1
+#define PWM_DEC_STEP        1
+#define ADC_ACQ_DELAY       5       // us
+#define VREF_VOLTAGE        2.048f  // V
+#define ADC_RESOLUTION      1023.0f
+#define VSENSE_VDIV         (2.0f / 12.0f)
+#define ISENSE_GAIN         11
+#define NIMH_ICUTOFF        25  // ~5mA
+#define LTION_ICUTOFF       55  // ~10mA
+#define BATT_IDISCONNECT    10  // ~2mA
+#define MEAN_CURRENT_CYCLES 10
 
 // Private variables.
 bool enabled           = false;
@@ -38,6 +39,8 @@ uint8_t adcLastChannel = 0;
 uint16_t targetVoltage = 0;
 uint16_t targetCurrent = 0;
 bool finishedCharging  = true;
+uint32_t meanCurrent   = 0;
+uint8_t meanICounter   = 0;
 
 /**
  * Enables the voltage regulator.
@@ -148,14 +151,29 @@ inline void StartNextADCReading(void) {
  * Detects the end of charge of a battery and acts upon it.
  */
 void DetectEndOfCharge(void) {
+	// Get the mean of the current over a period of time.
+	if (meanICounter < MEAN_CURRENT_CYCLES) {
+		meanCurrent += GetMeasuredCurrentValue();
+		meanICounter++;
+		
+		return;
+	}
+	
+	// Get the mean of the gathered currents.
+	meanCurrent /= MEAN_CURRENT_CYCLES;
+		
 	// Detect the end of charge.
 	if (IsLithiumBattery()) {
-		if (GetMeasuredCurrentValue() < LTION_ICUTOFF)
+		if (meanCurrent < LTION_ICUTOFF)
 			SetFinishedCharging();
 	} else {
-		if (GetMeasuredCurrentValue() < NIMH_ICUTOFF)
+		if (meanCurrent < NIMH_ICUTOFF)
 			SetFinishedCharging();
 	}
+	
+	// Reset everything.
+	meanCurrent = 0;
+	meanICounter = 0;
 }
 
 /**
