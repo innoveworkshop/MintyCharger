@@ -10,6 +10,7 @@
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.h</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/gauge.h</itemPath>
       <itemPath>src/eeprom.h</itemPath>
+      <itemPath>src/load.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -23,6 +24,7 @@
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.c</itemPath>
       <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/gauge.c</itemPath>
       <itemPath>src/eeprom.c</itemPath>
+      <itemPath>src/load.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -164,6 +166,7 @@
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>

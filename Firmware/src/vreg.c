@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "pins.h"
 #include "interface.h"
+#include "load.h"
 
 // Some definitions.
 #define PWM_MAX_VALUE      1022
@@ -29,19 +30,23 @@
 #define BATT_IDISCONNECT   10  // ~2mA
 
 // Private variables.
-bool enabled = false;
-uint16_t pwmValue = 0;
-uint16_t adcVoltage = 0;
-uint16_t adcCurrent = 0;
+bool enabled           = false;
+uint16_t pwmValue      = 0;
+uint16_t adcVoltage    = 0;
+uint16_t adcCurrent    = 0;
 uint8_t adcLastChannel = 0;
 uint16_t targetVoltage = 0;
 uint16_t targetCurrent = 0;
-bool finishedCharging = true;
+bool finishedCharging  = true;
 
 /**
  * Enables the voltage regulator.
  */
 void EnableRegulator(void) {
+	// Disable the electronic load.
+	DisableLoad();
+	
+	// Reset PWM duty cycle and set the enabled flag.
 	pwmValue = 0;
 	enabled = true;
 }
