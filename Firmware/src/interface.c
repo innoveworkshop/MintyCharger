@@ -137,19 +137,11 @@ void CommitConfiguration(const bool save_settings) {
 	if (save_settings)
 		SaveBatteryTypeSetting(GetSelectedBattery());
 
-	// Decide what to do.
-	switch (GetSelectedMode()) {
-		case MODE_CHARGE:
-			// Start charging.
-			ClearFinishedCharging();
-			break;
-		case MODE_DISCHARGE:
-			break;
-		case MODE_REFRESH:
-			break;
-	}
-	if (save_settings)
+	// Execute the currently selected task.
+	if (save_settings) {
+		HandleSingleButtonClick();
 		SaveChargerModeSetting(GetSelectedMode());
+	}
 }
 
 /**
@@ -158,8 +150,18 @@ void CommitConfiguration(const bool save_settings) {
 void HandleSingleButtonClick(void) {
 	// Check if we are in running more or editing configurations.
 	if (currentSelection == SEL_RUNNING) {
-		// Enable the charger.
-		ClearFinishedCharging();
+		switch (GetSelectedMode()) {
+			case MODE_CHARGE:
+				// Start charging.
+				ClearFinishedCharging();
+				break;
+			case MODE_DISCHARGE:
+				// Discharge the battery.
+				EnableLoad();
+				break;
+			case MODE_REFRESH:
+				break;
+		}
 	} else {
 		// Select the next option of the current selection.
 		SelectNextOption();
@@ -171,9 +173,11 @@ void HandleSingleButtonClick(void) {
  * its corresponding LED.
  */
 void FlashCurrentEditableConfiguration(void) {
-	// If we are editing the configurations, make sure the regulator is disabled.
-	if (currentSelection != SEL_RUNNING)
+	// If we are editing the configurations, make sure everything is disabled.
+	if (currentSelection != SEL_RUNNING) {
 		DisableRegulator();
+		DisableLoad();
+	}
 
 	// Toggle the current selection light.
 	switch (currentSelection) {
@@ -234,11 +238,12 @@ void NextConfigurationSelection(void) {
 	if (currentSelection < SEL_RATE) {
 		currentSelection++;
 	} else {
+		// Go into running mode and commit configuration.
 		currentSelection = SEL_RUNNING;
+		CommitConfiguration(true);
 	}
 
-	// Commit configuration and show change on board.
-	CommitConfiguration(true);
+	// Show change on board.
 	DisplayCurrentConfiguration();
 }
 
