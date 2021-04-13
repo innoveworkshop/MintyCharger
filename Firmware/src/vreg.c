@@ -28,7 +28,7 @@
 #define NIMH_ICUTOFF        25  // ~5mA
 #define LTION_ICUTOFF       55  // ~10mA
 #define BATT_IDISCONNECT    10  // ~2mA
-#define MEAN_CURRENT_CYCLES 10
+#define MEAN_CURRENT_CYCLES 5
 
 // Private variables.
 bool enabled           = false;
