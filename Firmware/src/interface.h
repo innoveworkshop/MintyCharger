@@ -11,7 +11,6 @@
 #include <stdbool.h>
 
 // Public enumarators.
-
 typedef enum {
 	NIMH_72V, LTION_74V, NIMH_84V, NIMH_96V
 } battery_t;
