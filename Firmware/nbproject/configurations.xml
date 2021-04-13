@@ -4,13 +4,13 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/config.h</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/interface.h</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/pins.h</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.h</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/gauge.h</itemPath>
+      <itemPath>src/config.h</itemPath>
       <itemPath>src/eeprom.h</itemPath>
+      <itemPath>src/gauge.h</itemPath>
+      <itemPath>src/interface.h</itemPath>
       <itemPath>src/load.h</itemPath>
+      <itemPath>src/pins.h</itemPath>
+      <itemPath>src/vreg.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -19,12 +19,12 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/interface.c</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/main.c</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/vreg.c</itemPath>
-      <itemPath>//MULBERRY/Projects/MintyCharger/Firmware/src/gauge.c</itemPath>
       <itemPath>src/eeprom.c</itemPath>
+      <itemPath>src/gauge.c</itemPath>
+      <itemPath>src/interface.c</itemPath>
       <itemPath>src/load.c</itemPath>
+      <itemPath>src/main.c</itemPath>
+      <itemPath>src/vreg.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
