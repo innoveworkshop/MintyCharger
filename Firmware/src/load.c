@@ -5,7 +5,7 @@
  * @author Nathan Campos <nathan@innoveworkshop.com>
  */
 
-#include "eeprom.h"
+#include "load.h"
 #include "config.h"
 #include <xc.h>
 #include <pic16f18325.h>
