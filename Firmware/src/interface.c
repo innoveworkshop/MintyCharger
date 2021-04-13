@@ -14,6 +14,7 @@
 #include "pins.h"
 #include "vreg.h"
 #include "eeprom.h"
+#include "load.h"
 
 // Private definitions.
 #define SHIFT_CLOCK_DELAY 10 // us
@@ -112,6 +113,7 @@ void CommitConfiguration(const bool save_settings) {
 			break;
 	}
 	SetTargetCurrent(current);
+	SetLoadCurrent(current);
 	if (save_settings)
 		SaveChargeRateSetting(GetSelectedCurrent());
 

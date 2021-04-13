@@ -16,13 +16,16 @@
 #include "vreg.h"
 #include "interface.h"
 #include "gauge.h"
+#include "load.h"
 
 // Private methods.
 void EnableInterrupts(void);
 void DisableInterrupts(void);
 void InitializeIO(void);
+void InitializeFVR(void);
 void InitializeADC(void);
 void InitializePWM(void);
+void InitializeDAC(void);
 void InitializeButtonHoldTimer(void);
 void InitializeFlashingTimer(void);
 
@@ -33,8 +36,10 @@ void main(void) {
 	// Initialize everything.
 	DisableInterrupts();
 	InitializeIO();
+	InitializeFVR();
 	InitializeADC();
 	InitializePWM();
+	InitializeDAC();
 	InitializeButtonHoldTimer();
 	InitializeFlashingTimer();
 	__delay_ms(100); // Give some time for stuff to stabilize.
@@ -42,6 +47,7 @@ void main(void) {
 
 	// Start the voltage regulation ADC loop.
 	DisableRegulator();
+	DisableLoad();
 	StartNextADCReading();
 	InitializeUI();
 
@@ -148,16 +154,24 @@ void InitializeIO(void) {
 }
 
 /**
+ * Sets up the fixed voltage reference.
+ */
+void InitializeFVR(void) {
+	// Setup FVR outputs.
+	FVRCONbits.ADFVR = 0b10;  // 2.048V ADC reference.
+	FVRCONbits.CDAFVR = 0b01; // 1.024V DAC and Comparator reference.
+	
+	// Make it work.
+	FVRCONbits.FVREN = 1; // Enable the reference module.
+	FVRCONbits.TSEN = 0;  // Disable the temperature indicator.
+}
+
+/**
  * Sets up the ADCs and their associated pins.
  */
 void InitializeADC(void) {
 	// Setup pins for the ADC.
 	ANSELC = VSENSE + ISENSE;
-
-	// Setup the FVR module.
-	FVRCONbits.ADFVR = 0b10; // 2.048V ADC reference.
-	FVRCONbits.FVREN = 1; // Enable the reference module.
-	FVRCONbits.TSEN = 0; // Disable the temperature indicator.
 
 	// Setup the ADC module.
 	ADCON1bits.ADFM = 1; // Right justified.
@@ -200,6 +214,22 @@ void InitializePWM(void) {
 	// Enable the PWM and unlock the slew rate for the pin.
 	PWM5CONbits.PWM5EN = 1;
 	SLRCONAbits.SLRA5 = 0;
+}
+
+/**
+ * Sets up the DAC for the electronic DC load.
+ */
+void InitializeDAC(void) {
+	// Setup voltage sources.
+	DACCON0bits.DAC1PSS = 0b10; // Positive reference is connected to the FVR.
+	DACCON0bits.DAC1NSS = 0;    // Negative reference is Vss.
+	
+	// Enable the DAC and reset its output.
+	DACCON0bits.DAC1EN = 1;
+	DACCON1bits.DAC1R = 0;
+	
+	// Enable the DAC output to RA0.
+	DACCON0bits.DAC1OE = 1;
 }
 
 /**
