@@ -11,10 +11,11 @@
 #include <pic16f18325.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "adc.h"
 #include "vreg.h"
 
 // Some definitions.
-#define VREF_VOLTAGE 1.024f  // V
+#define LOAD_VREF_VOLTAGE 1.024f  // V
 
 // Private variables.
 bool enabled        = false;
@@ -51,7 +52,7 @@ void DisableLoad(void) {
  * @return Load current.
  */
 float GetLoadCurrent(void) {
-	return (((float)GetLoadCurrentValue() * VREF_VOLTAGE) / 32.0f) / 10.0f;
+	return (((float)GetLoadCurrentValue() * LOAD_VREF_VOLTAGE) / 32.0f) / 10.0f;
 }
 
 /**
@@ -60,7 +61,7 @@ float GetLoadCurrent(void) {
  * @param current Target current.
  */
 void SetLoadCurrent(const float current) {
-	SetLoadCurrentValue((uint8_t)((float)(320 * current) / VREF_VOLTAGE));
+	SetLoadCurrentValue((uint8_t)((float)(320 * current) / LOAD_VREF_VOLTAGE));
 }
 
 /**

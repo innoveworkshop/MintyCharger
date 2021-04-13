@@ -12,9 +12,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "pins.h"
+#include "adc.h"
 #include "vreg.h"
-#include "eeprom.h"
 #include "load.h"
+#include "eeprom.h"
 
 // Private definitions.
 #define SHIFT_CLOCK_DELAY 10 // us

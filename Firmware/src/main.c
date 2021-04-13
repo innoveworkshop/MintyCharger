@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include "eeprom.h"
 #include "pins.h"
+#include "adc.h"
 #include "vreg.h"
 #include "interface.h"
 #include "gauge.h"
@@ -71,7 +72,7 @@ void __interrupt() ISR(void) {
 	// ADC interrupt.
 	if (PIR1bits.ADIF) {
 		// Combine registers into a single 10-bit value and store it.
-		uint16_t adcValue = (ADRESH << 8) | ADRESL;
+		uint16_t adcValue = (uint16_t)((ADRESH << 8) | ADRESL);
 		StoreADCValue(adcValue);
 
 		// Regulate the boost output voltage and current.

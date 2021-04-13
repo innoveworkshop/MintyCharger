@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include "pins.h"
 #include "interface.h"
+#include "adc.h"
 #include "vreg.h"
 
 // Private variables.
