@@ -56,6 +56,18 @@ void DisableRegulator(void) {
 }
 
 /**
+ * Checks if the battery is currently charging.
+ * 
+ * @return TRUE if the regulator is currently active and there's a battery inserted.
+ */
+inline bool IsBatteryCharging(void) {
+	if (IsBatteryDisconnected())
+		return false;
+	
+	return vregEnabled;
+}
+
+/**
  * Regulates the voltage output of the boost converter to make sure it respects
  * its limits.
  */

@@ -15,6 +15,7 @@
 #include "interface.h"
 #include "adc.h"
 #include "vreg.h"
+#include "load.h"
 
 // Private variables.
 uint8_t blinkState = 0;
@@ -27,11 +28,36 @@ inline void __attribute__((always_inline)) BlinkChargingState(uint8_t *gauge);
  */
 void DisplayBatteryGauge(void) {
 	uint8_t gauge = 0b0000;
+	float voltage = GetCellVoltage();
 
-	// Only show the gauge if the battery is actually connected.
-	if (!IsBatteryDisconnected() && !IsSelectingConfiguration()) {
-		float voltage = GetCellVoltage();
-
+	// Change the gauge steps depending on what's currently happening.
+	if (IsLoadEnabled()) {
+		// Gauge in discharge mode.
+		if (IsLithiumBattery()) {
+			if (voltage > 4.0f) {
+				// 75%
+				gauge = 0b0111;
+			} else if (voltage > 3.8f) {
+				// 50%
+				gauge = 0b0011;
+			} else if (voltage > 3.6f) {
+				// 25%
+				gauge = 0b0001;
+			}
+		} else {
+			if (voltage > 1.4f) {
+				// 75%
+				gauge = 0b0111;
+			} else if (voltage > 1.3f) {
+				// 50%
+				gauge = 0b0011;
+			} else if (voltage > 1.2f) {
+				// 25%
+				gauge = 0b0001;
+			}
+		}
+	} else if (IsBatteryCharging()) {
+		// Gauge in charge mode.
 		if (IsLithiumBattery()) {
 			if (IsFinishedCharging()) {
 				// 100%
@@ -61,11 +87,43 @@ void DisplayBatteryGauge(void) {
 				gauge = 0b0001;
 			}
 		}
-
-		// Blink them lights.
-		BlinkChargingState(&gauge);
+	} else {
+		// Gauge when nothing is happening.
+		if (IsLithiumBattery()) {
+			if (voltage > 4.0f) {
+				// 100%
+				gauge = 0b1111;
+			} else if (voltage > 3.7f) {
+				// 75%
+				gauge = 0b0111;
+			} else if (voltage > 3.5f) {
+				// 50%
+				gauge = 0b0011;
+			} else if (voltage > 3.2f) {
+				// 25%
+				gauge = 0b0001;
+			}
+		} else {
+			if (voltage > 1.4f) {
+				// 100%
+				gauge = 0b1111;
+			} else if (voltage > 1.3f) {
+				// 75%
+				gauge = 0b0111;
+			} else if (voltage > 1.2f) {
+				// 50%
+				gauge = 0b0011;
+			} else if (voltage > 1.1f) {
+				// 25%
+				gauge = 0b0001;
+			}
+		}
 	}
 
+	// Blink them lights.
+	if (IsBatteryCharging() || IsLoadEnabled())
+		BlinkChargingState(&gauge);
+	
 	// Shift gauge to start at RC2 and push changes to the IO pins.
 	gauge <<= 2;
 	LATC = ~(gauge);

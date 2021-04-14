@@ -21,6 +21,7 @@ void RegulateBoostOutput(void);
 void SetFinishedCharging(void);
 void ClearFinishedCharging(void);
 void DetectEndOfCharge(void);
+extern inline bool __attribute__((always_inline)) IsBatteryCharging(void);
 extern inline bool __attribute__((always_inline)) IsFinishedCharging(void);
 extern inline bool __attribute__((always_inline)) IsConstantCurrent(void);
 

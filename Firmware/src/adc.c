@@ -16,8 +16,9 @@
 #include "interface.h"
 
 // Private definitions.
-#define ADC_ACQ_DELAY    5   // us
-#define BATT_IDISCONNECT 10  // ~2mA
+#define ADC_ACQ_DELAY       5   // us
+#define BATT_IDISCONNECT    10  // ~2mA
+#define USB_LEAKAGE_VOLTAGE 466 // ~5.6V
 
 // Private variables.
 uint8_t adcLastChannel = 0;
@@ -127,8 +128,8 @@ float GetCellVoltage(void) {
  * @return TRUE if the battery has been disconnected.
  */
 inline bool IsBatteryDisconnected(void) {
-	// Check if there's >5.6V voltage present in case of a lithium battery.
-	if (IsLithiumBattery() && (GetMeasuredVoltageValue() > 466))
+	// Check if there's more than USB voltage present in case of a lithium battery.
+	if (IsLithiumBattery() && (GetMeasuredVoltageValue() > USB_LEAKAGE_VOLTAGE))
 		return false;
 
 	return GetMeasuredCurrentValue() < BATT_IDISCONNECT;
