@@ -299,7 +299,7 @@ void SelectNextMode(void) {
  * @return Selected battery configuration LED position.
  */
 inline uint16_t SelectedBatteryLED(void) {
-	return 1 << GetSelectedBattery();
+	return 1 << selectedBattery;
 }
 
 /**
@@ -309,10 +309,10 @@ inline uint16_t SelectedBatteryLED(void) {
  */
 inline uint16_t SelectedRateLED(void) {
 	// Ignore the trickle rate.
-	if (GetSelectedCurrent() == RATE_TRICKLE)
+	if (selectedRate == RATE_TRICKLE)
 		return 0;
 
-	return 1 << (GetSelectedCurrent() + 4);
+	return 1 << (selectedRate + 4);
 }
 
 /**
@@ -321,7 +321,7 @@ inline uint16_t SelectedRateLED(void) {
  * @return Selected mode configuration LED position.
  */
 inline uint16_t SelectedModeLED(void) {
-	return 1 << (GetSelectedMode() + 8);
+	return 1 << (selectedMode + 8);
 }
 
 /**
