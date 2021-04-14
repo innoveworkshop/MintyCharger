@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include "adc.h"
 #include "vreg.h"
+#include "interface.h"
 
 // Some definitions.
 #define LOAD_VREF_VOLTAGE 1.024f  // V
@@ -44,6 +45,40 @@ void DisableLoad(void) {
 	// Reset DAC to 0 and set the enabled flag.
 	DACCON1bits.DAC1R = 0;
 	loadEnabled = false;
+}
+
+/**
+ * Determine the current state of the battery and disable the electronic load if
+ * it's time to do so.
+ */
+void DetectLoadCutoff(void) {
+	if (IsLoadEnabled()) {
+		if (IsAtCutoffVoltage())
+			DisableLoad();
+	}
+}
+
+/**
+ * Checks if the electronic load is active.
+ * 
+ * @return TRUE if the load is currently active.
+ */
+inline bool IsLoadEnabled(void) {
+	return loadEnabled;
+}
+
+/**
+ * Detects if the battery has reached the discharge cutoff voltage.
+ * 
+ * @return TRUE if the battery has finished discharging.
+ */
+bool IsAtCutoffVoltage(void) {
+	// Handle the lithium battery case.
+	if (IsLithiumBattery())
+		return GetCellVoltage() < 3.0f;
+	
+	// Detect the cutoff for normal NiMH batteries.
+	return GetCellVoltage() < 0.95f;
 }
 
 /**

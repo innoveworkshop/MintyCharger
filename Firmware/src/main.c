@@ -57,11 +57,15 @@ void main(void) {
 
 	// Main application loop.
 	while (true) {
+		// Add a bit of delay to make sure things are stable.
+		__delay_ms(10);
+		
 		// Detect the battery end of charge.
-		if (!IsFinishedCharging()) {
-			__delay_ms(10);
+		if (!IsFinishedCharging())
 			DetectEndOfCharge();
-		}
+		
+		// Detect the load cutoff voltage and stop over discharging the battery.
+		DetectLoadCutoff();
 	}
 }
 

@@ -91,6 +91,7 @@ void LoadSettings(void) {
  */
 void CommitConfiguration(const bool save_settings) {
 	// Disable everything for safety.
+	DisableLoad();
 	ClearFinishedCharging();
 	DisableRegulator();
 
