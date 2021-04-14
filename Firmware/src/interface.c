@@ -151,7 +151,7 @@ void CommitConfiguration(const bool save_settings) {
 void HandleSingleButtonClick(void) {
 	// Check if we are in running more or editing configurations.
 	if (currentSelection == SEL_RUNNING) {
-		switch (GetSelectedMode()) {
+		switch (selectedMode) {
 			case MODE_CHARGE:
 				// Start charging.
 				ClearFinishedCharging();

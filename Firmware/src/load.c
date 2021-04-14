@@ -18,7 +18,7 @@
 #define LOAD_VREF_VOLTAGE 1.024f  // V
 
 // Private variables.
-bool enabled        = false;
+bool loadEnabled    = false;
 uint8_t loadCurrent = 0;
 
 // Private methods.
@@ -34,7 +34,7 @@ void EnableLoad(void) {
 	
 	// Reset DAC to 0 and set the enabled flag.
 	DACCON1bits.DAC1R = loadCurrent;
-	enabled = true;
+	loadEnabled = true;
 }
 
 /**
@@ -43,7 +43,7 @@ void EnableLoad(void) {
 void DisableLoad(void) {
 	// Reset DAC to 0 and set the enabled flag.
 	DACCON1bits.DAC1R = 0;
-	enabled = false;
+	loadEnabled = false;
 }
 
 /**

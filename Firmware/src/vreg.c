@@ -26,7 +26,7 @@
 #define MEAN_CURRENT_CYCLES 5
 
 // Private variables.
-bool enabled           = false;
+bool vregEnabled       = false;
 uint16_t pwmValue      = 0;
 uint16_t targetVoltage = 0;
 uint16_t targetCurrent = 0;
@@ -43,7 +43,7 @@ void EnableRegulator(void) {
 	
 	// Reset PWM duty cycle and set the enabled flag.
 	pwmValue = 0;
-	enabled = true;
+	vregEnabled = true;
 }
 
 /**
@@ -52,7 +52,7 @@ void EnableRegulator(void) {
 void DisableRegulator(void) {
 	pwmValue = 0;
 	SetPWMDutyCycle(pwmValue);
-	enabled = false;
+	vregEnabled = false;
 }
 
 /**
@@ -60,7 +60,7 @@ void DisableRegulator(void) {
  * its limits.
  */
 void RegulateBoostOutput(void) {
-	if (!enabled)
+	if (!vregEnabled)
 		return;
 
 	// Control the PWM in order to maintain regulation.
