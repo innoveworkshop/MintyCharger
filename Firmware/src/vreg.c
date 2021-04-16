@@ -38,9 +38,6 @@ uint8_t meanICounter   = 0;
  * Enables the voltage regulator.
  */
 void EnableRegulator(void) {
-	// Disable the electronic load.
-	DisableLoad();
-	
 	// Reset PWM duty cycle and set the enabled flag.
 	pwmValue = 0;
 	vregEnabled = true;

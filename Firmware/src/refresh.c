@@ -20,15 +20,6 @@
 refresh_t refreshCycle = REFRESH_STOPPED;
 
 /**
- * Initializes the battery refresh cycle.
- */
-void InitializeRefreshCycle(void) {
-	// Make sure that we are stopped and then jump to the first part of the cycle.
-	StopRefreshCycle();
-	NextRefreshCyclePart();
-}
-
-/**
  * Stops the battery refresh cycle.
  */
 void StopRefreshCycle(void) {
@@ -46,17 +37,21 @@ void StopRefreshCycle(void) {
  */
 void NextRefreshCyclePart(void) {
 	// Check if the next part of the cycle is actually stopping everything.
-	if (refreshCycle == REFRESH_CHARGING)
+	if (refreshCycle == REFRESH_CHARGING) {
 		StopRefreshCycle();
+		return;
+	}
 	
 	// Move to the next cycle.
 	refreshCycle++;
 	
 	switch (refreshCycle) {
 		case REFRESH_DISCHARGING:
+			DisableRegulator();
 			EnableLoad();
 			break;
 		case REFRESH_CHARGING:
+			DisableLoad();
 			ClearFinishedCharging();
 			break;
 		case REFRESH_STOPPED:
@@ -80,7 +75,7 @@ void DetectRefreshCycleSwitch(void) {
 			break;
 		case REFRESH_CHARGING:
 			// Check if the charger has finished.
-			if (!IsFinishedCharging())
+			if (IsFinishedCharging())
 				NextRefreshCyclePart();
 			break;
 	}

@@ -30,9 +30,6 @@ extern inline void __attribute__((always_inline)) SetLoadCurrentValue(const uint
  * Enables the electronic load.
  */
 void EnableLoad(void) {
-	// Disable the voltage regulator.
-	DisableRegulator();
-	
 	// Reset DAC to 0 and set the enabled flag.
 	DACCON1bits.DAC1R = loadCurrent;
 	loadEnabled = true;

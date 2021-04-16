@@ -156,15 +156,18 @@ void HandleSingleButtonClick(void) {
 		switch (selectedMode) {
 			case MODE_CHARGE:
 				// Start charging.
+				DisableLoad();
 				ClearFinishedCharging();
 				break;
 			case MODE_DISCHARGE:
 				// Discharge the battery.
+				DisableRegulator();
 				EnableLoad();
 				break;
 			case MODE_REFRESH:
 				// Refresh the battery.
-				InitializeRefreshCycle();
+				StopRefreshCycle();
+				NextRefreshCyclePart();
 				break;
 		}
 	} else {

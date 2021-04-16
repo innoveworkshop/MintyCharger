@@ -14,7 +14,6 @@ typedef enum {
 } refresh_t;
 
 // Cycle control.
-void InitializeRefreshCycle(void);
 void StopRefreshCycle(void);
 void DetectRefreshCycleSwitch(void);
 void NextRefreshCyclePart(void);
