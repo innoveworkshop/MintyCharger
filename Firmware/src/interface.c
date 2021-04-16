@@ -39,7 +39,7 @@ uint16_t configLights        = 0;
 void ShiftData(const uint16_t data);
 inline uint16_t __attribute__((always_inline)) SelectedBatteryLED(void);
 inline uint16_t __attribute__((always_inline)) SelectedRateLED(void);
-inline uint16_t __attribute__((always_inline)) SelectedModeLED(void);
+inline uint16_t __attribute__((always_inline)) SelectedModeLED(const mode_t mode);
 void LoadSettings(void);
 void DisplayCurrentConfiguration(void);
 void CommitConfiguration(const bool save_settings);
@@ -190,13 +190,26 @@ void FlashCurrentEditableConfiguration(void) {
 			configLights ^= SelectedBatteryLED();
 			break;
 		case SEL_MODE:
-			configLights ^= SelectedModeLED();
+			configLights ^= SelectedModeLED(selectedMode);
 			break;
 		case SEL_RATE:
 			configLights ^= SelectedRateLED();
 			break;
 		case SEL_RUNNING:
-			// Do nothing.
+			// Handle battery refresh.
+			if (selectedMode == MODE_REFRESH) {
+				switch (GetRefreshCycle()) {
+					case REFRESH_DISCHARGING:
+						ShiftData(configLights | SelectedModeLED(MODE_DISCHARGE));
+						return;
+					case REFRESH_CHARGING:
+						ShiftData(configLights | SelectedModeLED(MODE_CHARGE));
+						return;
+					case REFRESH_STOPPED:
+						// Do nothing.
+						break;
+				}
+			}
 			break;
 	}
 
@@ -209,7 +222,7 @@ void FlashCurrentEditableConfiguration(void) {
  */
 void DisplayCurrentConfiguration(void) {
 	// Configure each light that should light up.
-	configLights = SelectedBatteryLED() | SelectedRateLED() | SelectedModeLED();
+	configLights = SelectedBatteryLED() | SelectedRateLED() | SelectedModeLED(selectedMode);
 
 	// Shift the light data out.
 	ShiftData(configLights);
@@ -324,8 +337,8 @@ inline uint16_t SelectedRateLED(void) {
  * 
  * @return Selected mode configuration LED position.
  */
-inline uint16_t SelectedModeLED(void) {
-	return 1 << (selectedMode + 8);
+inline uint16_t SelectedModeLED(const mode_t mode) {
+	return 1 << (mode + 8);
 }
 
 /**
