@@ -12,9 +12,9 @@
 #include <stdint.h>
 
 // Public definitions.
-#define ADC_VREF_VOLTAGE 2.048f  // V
+#define ADC_VREF_VOLTAGE 2.048f         // V
 #define ADC_RESOLUTION   1023.0f
-#define VSENSE_VDIV      (2.0f / 12.0f)
+#define VSENSE_VDIV      0.16666666666f // R1 = 10k - R2 = 2k
 #define ISENSE_GAIN      11
 
 // Direct ADC interaction.
