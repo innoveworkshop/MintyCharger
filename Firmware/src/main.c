@@ -18,6 +18,7 @@
 #include "interface.h"
 #include "gauge.h"
 #include "load.h"
+#include "refresh.h"
 
 // Private methods.
 void EnableInterrupts(void);
@@ -66,6 +67,9 @@ void main(void) {
 		
 		// Detect the load cutoff voltage and stop over discharging the battery.
 		DetectLoadCutoff();
+		
+		// Detect if we need to go to the next part of a refresh cycle.
+		DetectRefreshCycleSwitch();
 	}
 }
 

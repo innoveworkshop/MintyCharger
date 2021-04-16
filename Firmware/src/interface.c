@@ -15,6 +15,7 @@
 #include "adc.h"
 #include "vreg.h"
 #include "load.h"
+#include "refresh.h"
 #include "eeprom.h"
 
 // Private definitions.
@@ -162,6 +163,8 @@ void HandleSingleButtonClick(void) {
 				EnableLoad();
 				break;
 			case MODE_REFRESH:
+				// Refresh the battery.
+				InitializeRefreshCycle();
 				break;
 		}
 	} else {
