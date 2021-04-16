@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 
-// Public enumarators.
+// Public enumerators.
 typedef enum {
 	NIMH_72V, LTION_74V, NIMH_84V, NIMH_96V
 } battery_t;
@@ -31,7 +31,7 @@ void FlashCurrentEditableConfiguration(void);
 // User interaction.
 void HandleSingleButtonClick(void);
 
-// Initialization.
+// Initialisation.
 void InitializeUI(void);
 
 // Getting configurations.
