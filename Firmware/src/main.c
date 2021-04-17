@@ -1,7 +1,7 @@
 /**
  * MintyCharger
- * A complete 9V (9.6V and 8.4V) NiMH charger that fits neatly inside an Altoids
- * tin.
+ * A complete PP3 (9.6V, 8.4V, 7.4V, and 7.2V) NiMH charger that fits neatly
+ * inside an Altoids tin.
  * 
  * @author Nathan Campos <nathan@innoveworkshop.com>
  */
@@ -35,7 +35,7 @@ void InitializeFlashingTimer(void);
  * Application main entry point.
  */
 void main(void) {
-	// Initialize everything.
+	// initialise everything.
 	DisableInterrupts();
 	InitializeIO();
 	InitializeFVR();
@@ -44,7 +44,7 @@ void main(void) {
 	InitializeDAC();
 	InitializeButtonHoldTimer();
 	InitializeFlashingTimer();
-	__delay_ms(100); // Give some time for stuff to stabilize.
+	__delay_ms(100); // Give some time for stuff to stabilise.
 	EnableInterrupts();
 
 	// Start the voltage regulation ADC loop.
