@@ -17,8 +17,12 @@
 #include "vreg.h"
 #include "load.h"
 
+// Private definitions.
+#define GAUGE_TIMER_DELAY 2
+
 // Private variables.
 uint8_t blinkState = 0;
+uint8_t timerDelay = 0;
 
 // Private methods.
 inline void __attribute__((always_inline)) BlinkChargingState(uint8_t *gauge);
@@ -121,8 +125,13 @@ void DisplayBatteryGauge(void) {
 	}
 
 	// Blink them lights.
-	if (IsBatteryCharging() || IsLoadEnabled())
-		BlinkChargingState(&gauge);
+	if (timerDelay < GAUGE_TIMER_DELAY) {
+		timerDelay++;
+	} else {
+		if (IsBatteryCharging() || IsLoadEnabled())
+			BlinkChargingState(&gauge);
+		timerDelay = 0;
+	}
 	
 	// Shift gauge to start at RC2 and push changes to the IO pins.
 	gauge <<= 2;
