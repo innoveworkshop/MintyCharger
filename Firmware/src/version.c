@@ -24,7 +24,7 @@
  */
 inline void DisplayFirmwareInformation(void) {
 	while ((PORTA & BTN_SELECT) == 0) {
-		LATC = ~((FIRMWARE_VERSION & 0b1111) << 2);
+		LATC = (uint8_t)~((FIRMWARE_VERSION & 0b1111) << 2);
 		__delay_ms(100);
 	}
 }
