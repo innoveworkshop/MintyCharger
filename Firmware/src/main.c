@@ -102,9 +102,8 @@ void __interrupt() ISR(void) {
 			T1CONbits.TMR1ON = 1; // Enable the timer.
 		} else {
 			// Check if the timer is running. Detect if it was a single click.
-			if (T1CONbits.TMR1ON) {
+			if (T1CONbits.TMR1ON)
 				HandleSingleButtonClick();
-			}
 
 			// Disable the timer.
 			T1CONbits.TMR1ON = 0;
@@ -116,11 +115,9 @@ void __interrupt() ISR(void) {
 
 	// Button hold timer (Timer1) interrupt.
 	if (PIR1bits.TMR1IF) {
-		// Check if the button is still pressed.
-		if ((PORTA & BTN_SELECT) == 0) {
-			// Go to the next selection.
+		// Check if the button is still pressed and go to the next selection.
+		if ((PORTA & BTN_SELECT) == 0)
 			NextConfigurationSelection();
-		}
 
 		// Turn the timer off and clear the interrupt.
 		T1CONbits.TMR1ON = 0;
