@@ -37,6 +37,10 @@ void InitializeFlashingTimer(void);
  * Main entry point.
  */
 void main(void) {
+	// Set the WDT to 4s for initializing everything.
+	WDTCONbits.WDTPS = 0b01100;
+	CLRWDT();
+	
 	// Initialize everything.
 	DisableInterrupts();
 	InitializeIO();
@@ -57,11 +61,15 @@ void main(void) {
 	StartNextADCReading();
 	InitializeUI();
 
-	// Enable the flashing timer.
+	// Reset the WDT to 256ms for normal operation and enable the flashing timer.
+	WDTCONbits.WDTPS = 0b01000;
 	T6CONbits.TMR6ON = 1;
 
 	// Main application loop.
 	while (true) {
+		// Reset the watchdog timer.
+		CLRWDT();
+		
 		// Add a bit of delay to make sure things are stable.
 		__delay_ms(10);
 		
