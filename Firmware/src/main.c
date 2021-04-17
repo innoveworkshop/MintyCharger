@@ -19,6 +19,7 @@
 #include "gauge.h"
 #include "load.h"
 #include "refresh.h"
+#include "version.h"
 
 // Private methods.
 void EnableInterrupts(void);
@@ -28,23 +29,26 @@ void InitializeFVR(void);
 void InitializeADC(void);
 void InitializePWM(void);
 void InitializeDAC(void);
+void InitializeButtonInterrupt(void);
 void InitializeButtonHoldTimer(void);
 void InitializeFlashingTimer(void);
 
 /**
- * Application main entry point.
+ * Main entry point.
  */
 void main(void) {
-	// initialise everything.
+	// Initialize everything.
 	DisableInterrupts();
 	InitializeIO();
 	InitializeFVR();
 	InitializeADC();
 	InitializePWM();
 	InitializeDAC();
+	InitializeButtonInterrupt();
 	InitializeButtonHoldTimer();
 	InitializeFlashingTimer();
 	__delay_ms(100); // Give some time for stuff to stabilise.
+	DisplayFirmwareInformation();
 	EnableInterrupts();
 
 	// Start the voltage regulation ADC loop.
@@ -239,9 +243,9 @@ void InitializeDAC(void) {
 }
 
 /**
- * Initializes the timer that will be used to determine a button hold.
+ * Initializes the interrupt used to detect button presses.
  */
-void InitializeButtonHoldTimer(void) {
+void InitializeButtonInterrupt(void) {
 	// Unlock the PPS and set the Select button as a source for the INT interrupt.
 	PPSLOCK = 0x55;
 	PPSLOCK = 0xAA;
@@ -252,13 +256,18 @@ void InitializeButtonHoldTimer(void) {
 	PPSLOCKbits.PPSLOCKED = 1;   // Lock the PPS.
 	INTCONbits.INTEDG = 0;       // Trigger on the falling edge.
 	PIE0bits.INTE = 1;           // Enable the INT interrupt.
+}
 
+/**
+ * Initializes the timer that will be used to determine a button hold.
+ */
+void InitializeButtonHoldTimer(void) {
 	// Setup the Timer1 as a button hold timer of ~2s.
-	T1CONbits.TMR1ON = 0;        // Disable the timer.
-	T1CONbits.TMR1CS = 0b11;     // LFINTOSC as the clock source.
-	T1CONbits.T1CKPS = 0b00;     // Prescaler set to 1.
-	T1GCONbits.TMR1GE = 0;       // Disable gating. Will run like any other timer.
-	PIE1bits.TMR1IE = 1;         // Enable its interrupt.
+	T1CONbits.TMR1ON = 0;     // Disable the timer.
+	T1CONbits.TMR1CS = 0b11;  // LFINTOSC as the clock source.
+	T1CONbits.T1CKPS = 0b00;  // Prescaler set to 1.
+	T1GCONbits.TMR1GE = 0;    // Disable gating. Will run like any other timer.
+	PIE1bits.TMR1IE = 1;      // Enable its interrupt.
 }
 
 /**

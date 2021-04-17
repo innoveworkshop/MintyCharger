@@ -13,6 +13,7 @@
       <itemPath>src/vreg.h</itemPath>
       <itemPath>src/adc.h</itemPath>
       <itemPath>src/refresh.h</itemPath>
+      <itemPath>src/version.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -29,6 +30,7 @@
       <itemPath>src/vreg.c</itemPath>
       <itemPath>src/adc.c</itemPath>
       <itemPath>src/refresh.c</itemPath>
+      <itemPath>src/version.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -88,7 +90,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros" value=""/>
+        <property key="define-macros" value="FIRMWARE_VERSION=2"/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories" value="src"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
