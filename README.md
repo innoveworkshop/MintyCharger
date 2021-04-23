@@ -3,7 +3,7 @@
 A complete USB-powered PP3 battery charger that fits neatly inside an Altoids
 tin. To learn more please [visit the project website](https://innoveworkshop.com/product/mintycharger).
 
-![Project Logo](/Images/logo.png)
+![Project Logo](/Images/logo.svg)
 
 
 ## Supported Batteries
