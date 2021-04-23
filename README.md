@@ -1,12 +1,15 @@
 # MintyCharger
 
-A complete 9V battery charger that fits neatly inside an Altoids tin.
+A complete USB-powered PP3 battery charger that fits neatly inside an Altoids
+tin. To learn more please [visit the project website](https://innoveworkshop.com/product/mintycharger).
+
+![PCB Layout](/Images/board.png)
 
 
 ## Supported Batteries
 
-This charger is capable of working with the following battery types and nominal
-voltages:
+This charger is capable of working with the following battery chemistries and
+nominal voltages:
 
   - NiMH
     - 9.6V
