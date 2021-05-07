@@ -73,6 +73,7 @@ void InitializeUI(void) {
 
 	// Commit and display the default startup configuration.
 	CommitConfiguration(false);
+	ShiftData(0);
 	DisplayCurrentConfiguration();
 }
 
